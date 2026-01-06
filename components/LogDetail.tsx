@@ -41,9 +41,9 @@ export const LogDetail: React.FC<LogDetailProps> = ({ log, onBack, onEdit, onDel
   };
 
   return (
-    <div className="pb-24 animate-fade-in">
+    <div className="pb-24 animate-fade-in px-4">
       {/* Header with EXPLICIT calc() safe area padding + 1.5rem (24px) for visual spacing */}
-      <div className="sticky top-0 bg-background/95 backdrop-blur z-50 py-4 pt-[calc(env(safe-area-inset-top)+1.5rem)] border-b border-gray-800 flex justify-between items-center mb-6">
+      <div className="sticky top-0 bg-background/95 backdrop-blur z-50 py-4 pt-[calc(env(safe-area-inset-top)+1.5rem)] border-b border-gray-800 flex justify-between items-center mb-6 -mx-4 px-4">
         <button onClick={onBack} className="p-2 -ml-2 text-muted hover:text-white">
           <ArrowLeft />
         </button>

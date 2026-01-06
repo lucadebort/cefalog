@@ -100,8 +100,12 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-background text-text font-sans antialiased selection:bg-primary/30">
       
-      {/* Main Content Area - Handled SAFE AREA padding inside individual components to avoid conflicts */}
-      <main className="max-w-md mx-auto min-h-screen px-4 md:px-6 relative">
+      {/* 
+          REMOVED all global padding (px-4, pt-safe, etc.) from here.
+          Individual components now handle their own padding and sticky headers
+          to ensure edge-to-edge blur effects.
+      */}
+      <main className="max-w-md mx-auto min-h-screen relative">
         {renderContent()}
       </main>
 

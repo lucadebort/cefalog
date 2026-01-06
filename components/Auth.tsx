@@ -47,7 +47,7 @@ export const Auth: React.FC = () => {
             <Activity size={32} />
           </div>
           <h1 className="text-2xl font-bold text-white mb-2">CefaLog</h1>
-          <p className="text-muted text-sm">Diario per il monitoraggio delle cefalee</p>
+          <p className="text-muted text-sm">Diario per il monitoraggio delle cefalee, creato appositamente per te da.. Luca!</p>
         </div>
 
         <form onSubmit={handleAuth} className="space-y-4">

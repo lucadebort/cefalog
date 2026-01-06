@@ -166,9 +166,9 @@ export const HistoryList: React.FC<HistoryListProps> = ({ onSelectLog }) => {
   }
 
   return (
-    // Added pt-[calc(env(safe-area-inset-top)+2rem)] to ensure content starts BELOW the notch
-    <div className="pb-20 animate-fade-in pt-[calc(env(safe-area-inset-top)+2rem)]">
-      <div className="flex justify-between items-center mb-4">
+    <div className="pb-20 animate-fade-in px-4">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-md pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 -mx-4 px-4 mb-2 flex justify-between items-center border-b border-gray-800/50">
          <h2 className="text-2xl font-bold">Storico</h2>
          <div className="flex bg-surface rounded-lg p-1 border border-gray-700">
            <button 

@@ -22,16 +22,27 @@ export const Analytics: React.FC = () => {
     });
   }, []);
 
-  // Lock body scroll when fullscreen is active
+  // SCROLL LOCKING: Force body to fixed to prevent iOS rubber-banding under modal
   useEffect(() => {
     if (isFullScreen) {
-      document.body.style.overflow = 'hidden';
-      // We don't mess with position/width here anymore to allow natural resizing
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.touchAction = 'none'; // Nuclear option for scroll
     } else {
-      document.body.style.overflow = '';
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.touchAction = '';
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
     }
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.touchAction = '';
     };
   }, [isFullScreen]);
 
@@ -144,9 +155,9 @@ export const Analytics: React.FC = () => {
   const printReport = () => window.print();
 
   return (
-    // Added pt-[calc(env(safe-area-inset-top)+2rem)]
-    <div className="pb-24 animate-fade-in space-y-6 pt-[calc(env(safe-area-inset-top)+2rem)]">
-      <div className="flex justify-between items-center">
+    <div className="pb-24 animate-fade-in space-y-6 px-4">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-md pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 -mx-4 px-4 mb-4 flex justify-between items-center border-b border-gray-800/50">
         <h2 className="text-2xl font-bold">Analisi</h2>
         <button onClick={printReport} className="text-xs text-primary font-medium border border-primary px-3 py-1 rounded-full">
           Esporta Report
@@ -266,10 +277,11 @@ export const Analytics: React.FC = () => {
       {/* --- FULL SCREEN MODAL --- */}
       {isFullScreen && (
         <div 
-          className="fixed inset-0 z-50 bg-background flex flex-col pt-safe pl-safe pr-safe pb-safe"
+          className="fixed inset-0 z-[100] bg-background flex flex-col pt-safe pl-safe pr-safe pb-safe"
+          style={{ overscrollBehavior: 'none' }}
         >
-          {/* Header Controls */}
-          <div className="flex-none p-4 border-b border-gray-800 flex justify-between items-center bg-surface/50 backdrop-blur-md">
+          {/* Header Controls - Explicit Top Padding to cover Notch Area fully */}
+          <div className="flex-none pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 px-4 border-b border-gray-800 flex justify-between items-center bg-background/95 backdrop-blur-md">
             <h2 className="font-bold text-lg">Analisi Periodo</h2>
             <button 
               onClick={() => setIsFullScreen(false)}
@@ -302,7 +314,7 @@ export const Analytics: React.FC = () => {
           </div>
 
           {/* Chart Content Container - Fill Remaining Space */}
-          <div className="flex-1 min-h-0 relative p-4">
+          <div className="flex-1 min-h-0 relative p-4 bg-background">
               {fullTrendData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={fullTrendData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
