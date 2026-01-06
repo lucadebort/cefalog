@@ -382,7 +382,7 @@ export const LogForm: React.FC<LogFormProps> = ({ onClose, editTarget }) => {
           </div>
           <input 
             type="text" 
-            placeholder="Cosa hai mangiato prima dei farmaci?"
+            placeholder="Cosa hai mangiato prima o durante il mal di testa?"
             value={formData.food}
             onChange={e => setFormData({...formData, food: e.target.value})}
             className="w-full bg-surface border border-gray-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-primary outline-none placeholder-gray-500"
