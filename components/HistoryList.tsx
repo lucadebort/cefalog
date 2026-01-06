@@ -12,6 +12,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({ onSelectLog }) => {
   const [filteredLogs, setFilteredLogs] = useState<HeadacheLog[]>([]);
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDay, setSelectedDay] = useState<Date | null>(new Date()); // Default to today
   const [loading, setLoading] = useState(true);
   
   // Search & Filter State
@@ -99,64 +100,122 @@ export const HistoryList: React.FC<HistoryListProps> = ({ onSelectLog }) => {
 
     const monthName = currentDate.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
 
-    const getLogsForDay = (day: number) => {
+    const getLogsForDay = (date: Date) => {
       return logs.filter(log => {
         const d = new Date(log.startedAt);
-        return d.getDate() === day && d.getMonth() === month && d.getFullYear() === year;
+        return d.getDate() === date.getDate() && 
+               d.getMonth() === date.getMonth() && 
+               d.getFullYear() === date.getFullYear();
       });
     };
 
     const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
     const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
 
+    // Get logs for the selected day for the list below
+    const selectedLogs = selectedDay ? getLogsForDay(selectedDay) : [];
+
     return (
-      <div className="bg-surface rounded-xl border border-gray-700 p-4">
-        <div className="flex justify-between items-center mb-4">
-          <button onClick={prevMonth} className="p-1 hover:text-white text-muted"><ChevronLeft /></button>
-          <h3 className="font-bold capitalize text-white">{monthName}</h3>
-          <button onClick={nextMonth} className="p-1 hover:text-white text-muted"><ChevronRight /></button>
+      <div className="space-y-6">
+        <div className="bg-surface rounded-xl border border-gray-700 p-4">
+            <div className="flex justify-between items-center mb-4">
+            <button onClick={prevMonth} className="p-1 hover:text-white text-muted"><ChevronLeft /></button>
+            <h3 className="font-bold capitalize text-white">{monthName}</h3>
+            <button onClick={nextMonth} className="p-1 hover:text-white text-muted"><ChevronRight /></button>
+            </div>
+
+            <div className="grid grid-cols-7 gap-1 text-center mb-2">
+            {['L', 'M', 'M', 'G', 'V', 'S', 'D'].map(d => (
+                <div key={d} className="text-xs text-muted font-medium py-1">{d}</div>
+            ))}
+            </div>
+
+            <div className="grid grid-cols-7 gap-1">
+            {blanks.map(i => <div key={`blank-${i}`} className="aspect-square" />)}
+            {days.map(day => {
+                const dateObj = new Date(year, month, day);
+                const dayLogs = getLogsForDay(dateObj);
+                const maxIntensity = dayLogs.reduce((acc, l) => Math.max(acc, l.intensity), 0);
+                const hasLog = dayLogs.length > 0;
+                
+                // Selection state
+                const isSelected = selectedDay && 
+                                selectedDay.getDate() === day && 
+                                selectedDay.getMonth() === month && 
+                                selectedDay.getFullYear() === year;
+
+                let bgClass = 'bg-surface/50 border-gray-800 text-muted hover:bg-gray-700';
+                let textClass = '';
+                
+                if (hasLog) {
+                textClass = 'font-bold text-white';
+                if (maxIntensity >= 7) bgClass = 'bg-red-500/20 border-red-500/50';
+                else if (maxIntensity >= 4) bgClass = 'bg-orange-500/20 border-orange-500/50';
+                else bgClass = 'bg-green-500/20 border-green-500/50';
+                }
+
+                if (isSelected) {
+                    bgClass = `ring-2 ring-primary ${bgClass}`;
+                }
+
+                return (
+                <button 
+                    key={day} 
+                    onClick={() => setSelectedDay(dateObj)}
+                    className={`aspect-square rounded-lg border flex flex-col items-center justify-center relative transition-all ${bgClass}`}
+                >
+                    <span className={`text-sm ${textClass}`}>{day}</span>
+                    {hasLog && (
+                    <div className={`w-1.5 h-1.5 rounded-full mt-1 ${maxIntensity >= 7 ? 'bg-red-500' : maxIntensity >= 4 ? 'bg-orange-500' : 'bg-green-500'}`} />
+                    )}
+                </button>
+                );
+            })}
+            </div>
         </div>
 
-        <div className="grid grid-cols-7 gap-1 text-center mb-2">
-          {['L', 'M', 'M', 'G', 'V', 'S', 'D'].map(d => (
-            <div key={d} className="text-xs text-muted font-medium py-1">{d}</div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-7 gap-1">
-          {blanks.map(i => <div key={`blank-${i}`} className="aspect-square" />)}
-          {days.map(day => {
-            const dayLogs = getLogsForDay(day);
-            const maxIntensity = dayLogs.reduce((acc, l) => Math.max(acc, l.intensity), 0);
-            const hasLog = dayLogs.length > 0;
-            
-            let bgClass = 'bg-surface/50 border-gray-800 text-muted hover:bg-gray-700';
-            let textClass = '';
-            
-            if (hasLog) {
-              textClass = 'font-bold text-white';
-              if (maxIntensity >= 7) bgClass = 'bg-red-500/20 border-red-500/50';
-              else if (maxIntensity >= 4) bgClass = 'bg-orange-500/20 border-orange-500/50';
-              else bgClass = 'bg-green-500/20 border-green-500/50';
-            }
-
-            return (
-              <button 
-                key={day} 
-                onClick={() => {
-                   if (hasLog && onSelectLog) onSelectLog(dayLogs[0]); // Select first log of the day for now
-                }}
-                disabled={!hasLog}
-                className={`aspect-square rounded-lg border flex flex-col items-center justify-center relative transition-colors ${bgClass}`}
-              >
-                <span className={`text-sm ${textClass}`}>{day}</span>
-                {hasLog && (
-                  <div className={`w-1.5 h-1.5 rounded-full mt-1 ${maxIntensity >= 7 ? 'bg-red-500' : maxIntensity >= 4 ? 'bg-orange-500' : 'bg-green-500'}`} />
+        {/* List of logs for selected day */}
+        {selectedDay && (
+            <div className="space-y-3 animate-fade-in">
+                <h4 className="text-sm font-medium text-muted uppercase tracking-wider">
+                    {selectedDay.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })}
+                </h4>
+                
+                {selectedLogs.length > 0 ? (
+                    selectedLogs.map(log => (
+                        <div 
+                            key={log.id} 
+                            onClick={() => onSelectLog && onSelectLog(log)}
+                            className="bg-surface rounded-xl p-4 border border-gray-800 flex justify-between items-center active:scale-[0.98] transition-transform cursor-pointer hover:border-gray-600"
+                        >
+                            <div>
+                                <p className="font-medium text-text capitalize">
+                                {new Date(log.startedAt).toLocaleDateString('it-IT', { weekday: 'short', month: 'short', day: 'numeric'})}
+                                </p>
+                                <p className="text-xs text-muted">
+                                {new Date(log.startedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                {log.endedAt ? ` • ${((new Date(log.endedAt).getTime() - new Date(log.startedAt).getTime()) / (1000 * 60 * 60)).toFixed(1)} ore` : ' • In corso'}
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <div className={`px-2.5 py-1 rounded-md text-xs font-bold ${
+                                log.intensity >= 7 ? 'bg-red-500/20 text-red-400' : 
+                                log.intensity >= 4 ? 'bg-orange-500/20 text-orange-400' : 
+                                'bg-green-500/20 text-green-400'
+                                }`}>
+                                {log.intensity}/10
+                                </div>
+                                <ChevronRightIcon size={16} className="text-muted" />
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <div className="text-center py-6 text-muted text-sm bg-surface/30 rounded-xl border border-dashed border-gray-800">
+                        Nessun attacco registrato in questa data.
+                    </div>
                 )}
-              </button>
-            );
-          })}
-        </div>
+            </div>
+        )}
       </div>
     );
   };
