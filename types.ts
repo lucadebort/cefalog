@@ -40,12 +40,14 @@ export interface HeadacheLog {
   hasAura: boolean;
   isLightSensitive: boolean; // Photophobia
   isSoundSensitive: boolean; // Phonophobia
+  isSmellSensitive: boolean; // Osmophobia (New)
   hasNausea: boolean;
   worsenedByMovement: boolean;
 
   // Triggers & Meds
   triggers: string[];
   medication: string;
+  food: string; // New field
   notes: string;
 }
 

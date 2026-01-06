@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, AlertCircle, Clock, MapPin, Pill, Zap, Check, Activity, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, AlertCircle, Clock, MapPin, Pill, Zap, Check, Activity, Loader2, Utensils, FileText } from 'lucide-react';
 import { HeadacheLog, PainQuality, Location, COMMON_TRIGGERS, LOCATION_COLORS } from '../types';
 import { Button } from './ui/Button';
 import { saveLog, updateLog, getActiveHeadache } from '../services/storageService';
@@ -17,10 +17,12 @@ export const LogForm: React.FC<LogFormProps> = ({ onClose, editTarget }) => {
     hasAura: false,
     isLightSensitive: false,
     isSoundSensitive: false,
+    isSmellSensitive: false,
     hasNausea: false,
     worsenedByMovement: false,
     triggers: [],
     medication: '',
+    food: '',
     notes: '',
     startedAt: new Date().toISOString().slice(0, 16),
     endedAt: ''
@@ -95,10 +97,12 @@ export const LogForm: React.FC<LogFormProps> = ({ onClose, editTarget }) => {
       hasAura: formData.hasAura || false,
       isLightSensitive: formData.isLightSensitive || false,
       isSoundSensitive: formData.isSoundSensitive || false,
+      isSmellSensitive: formData.isSmellSensitive || false,
       hasNausea: formData.hasNausea || false,
       worsenedByMovement: formData.worsenedByMovement || false,
       triggers: formData.triggers || [],
       medication: formData.medication || '',
+      food: formData.food || '',
       notes: formData.notes || ''
     };
 
@@ -195,22 +199,22 @@ export const LogForm: React.FC<LogFormProps> = ({ onClose, editTarget }) => {
             <h3>Orario</h3>
           </div>
           <div className="grid grid-cols-1 gap-4">
-            <div>
+            <div className="min-w-0"> {/* min-w-0 prevents flex item from overflowing */}
               <label className="block text-xs text-muted uppercase mb-1">Inizio</label>
               <input 
                 type="datetime-local" 
                 value={formData.startedAt}
                 onChange={e => setFormData({...formData, startedAt: e.target.value})}
-                className="w-full bg-surface border border-gray-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-primary outline-none text-sm"
+                className="w-full max-w-full box-border bg-surface border border-gray-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-primary outline-none text-sm appearance-none"
               />
             </div>
-            <div>
+            <div className="min-w-0">
               <label className="block text-xs text-muted uppercase mb-1">Fine (Opzionale)</label>
               <input 
                 type="datetime-local" 
                 value={formData.endedAt || ''}
                 onChange={e => setFormData({...formData, endedAt: e.target.value})}
-                className="w-full bg-surface border border-gray-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-primary outline-none text-sm"
+                className="w-full max-w-full box-border bg-surface border border-gray-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-primary outline-none text-sm appearance-none"
               />
             </div>
           </div>
@@ -312,6 +316,7 @@ export const LogForm: React.FC<LogFormProps> = ({ onClose, editTarget }) => {
                { key: 'hasAura', label: 'Aura (Visiva)' },
                { key: 'isLightSensitive', label: 'Fotofobia (Luce)' },
                { key: 'isSoundSensitive', label: 'Fonofobia (Suoni)' },
+               { key: 'isSmellSensitive', label: 'Osmofobia (Odori)' }, // New
                { key: 'hasNausea', label: 'Nausea/Vomito' },
                { key: 'worsenedByMovement', label: 'Peggiora muovendosi' },
              ].map((item) => (
@@ -354,28 +359,49 @@ export const LogForm: React.FC<LogFormProps> = ({ onClose, editTarget }) => {
           </div>
         </section>
 
-        {/* Section: Meds & Notes */}
+        {/* Section: Meds */}
         <section>
           <div className="flex items-center gap-2 text-primary font-medium mb-3">
             <Pill className="w-5 h-5" />
-            <h3>Farmaci & Note</h3>
+            <h3>Farmaci</h3>
           </div>
-          <div className="space-y-4">
-            <input 
-              type="text" 
-              placeholder="Es. Ibuprofene 400mg"
-              value={formData.medication}
-              onChange={e => setFormData({...formData, medication: e.target.value})}
-              className="w-full bg-surface border border-gray-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-primary outline-none placeholder-gray-500"
-            />
-            <textarea 
-              rows={3}
-              placeholder="Note aggiuntive..."
-              value={formData.notes}
-              onChange={e => setFormData({...formData, notes: e.target.value})}
-              className="w-full bg-surface border border-gray-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-primary outline-none placeholder-gray-500"
-            />
+          <input 
+            type="text" 
+            placeholder="Es. Ibuprofene 400mg"
+            value={formData.medication}
+            onChange={e => setFormData({...formData, medication: e.target.value})}
+            className="w-full bg-surface border border-gray-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-primary outline-none placeholder-gray-500"
+          />
+        </section>
+
+        {/* Section: Food (New) */}
+        <section>
+          <div className="flex items-center gap-2 text-primary font-medium mb-3">
+            <Utensils className="w-5 h-5" />
+            <h3>Cibo Assunto</h3>
           </div>
+          <input 
+            type="text" 
+            placeholder="Cosa hai mangiato prima dei farmaci?"
+            value={formData.food}
+            onChange={e => setFormData({...formData, food: e.target.value})}
+            className="w-full bg-surface border border-gray-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-primary outline-none placeholder-gray-500"
+          />
+        </section>
+
+        {/* Section: Notes */}
+        <section>
+          <div className="flex items-center gap-2 text-primary font-medium mb-3">
+            <FileText className="w-5 h-5" />
+            <h3>Note</h3>
+          </div>
+          <textarea 
+            rows={3}
+            placeholder="Dettagli aggiuntivi..."
+            value={formData.notes}
+            onChange={e => setFormData({...formData, notes: e.target.value})}
+            className="w-full bg-surface border border-gray-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-primary outline-none placeholder-gray-500"
+          />
         </section>
 
         {/* Actions */}

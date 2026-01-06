@@ -12,10 +12,12 @@ const mapFromDb = (row: any): HeadacheLog => ({
   hasAura: row.has_aura,
   isLightSensitive: row.is_light_sensitive,
   isSoundSensitive: row.is_sound_sensitive,
+  isSmellSensitive: row.is_smell_sensitive || false, // Handle legacy records
   hasNausea: row.has_nausea,
   worsenedByMovement: row.worsened_by_movement,
   triggers: row.triggers || [],
   medication: row.medication || '',
+  food: row.food || '',
   notes: row.notes || ''
 });
 
@@ -31,10 +33,12 @@ const mapToDb = (log: HeadacheLog, userId: string) => ({
   has_aura: log.hasAura,
   is_light_sensitive: log.isLightSensitive,
   is_sound_sensitive: log.isSoundSensitive,
+  is_smell_sensitive: log.isSmellSensitive,
   has_nausea: log.hasNausea,
   worsened_by_movement: log.worsenedByMovement,
   triggers: log.triggers,
   medication: log.medication,
+  food: log.food,
   notes: log.notes
 });
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Calendar, Clock, Edit2, Trash2, MapPin, Activity, Zap, Pill, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Edit2, Trash2, MapPin, Activity, Zap, Pill, AlertCircle, Utensils, FileText } from 'lucide-react';
 import { HeadacheLog, LOCATION_COLORS } from '../types';
 import { Button } from './ui/Button';
 
@@ -30,6 +30,7 @@ export const LogDetail: React.FC<LogDetailProps> = ({ log, onBack, onEdit, onDel
     log.hasAura && 'Aura',
     log.isLightSensitive && 'Fotofobia',
     log.isSoundSensitive && 'Fonofobia',
+    log.isSmellSensitive && 'Osmofobia',
     log.hasNausea && 'Nausea',
     log.worsenedByMovement && 'Peggiora muovendosi'
   ].filter(Boolean) as string[];
@@ -149,10 +150,10 @@ export const LogDetail: React.FC<LogDetailProps> = ({ log, onBack, onEdit, onDel
             </div>
         </div>
 
-        {/* Medication & Notes */}
+        {/* Treatment (Meds & Food) */}
         <div className="bg-surface p-4 rounded-xl border border-gray-700">
             <div className="flex items-center gap-2 text-primary text-sm font-bold mb-3 uppercase">
-                <Pill size={16} /> Trattamento & Note
+                <Pill size={16} /> Trattamento
             </div>
             
             <div className="space-y-4">
@@ -162,17 +163,29 @@ export const LogDetail: React.FC<LogDetailProps> = ({ log, onBack, onEdit, onDel
                         {log.medication || <span className="text-muted italic">Nessun farmaco</span>}
                     </p>
                  </div>
-                 
-                 {log.notes && (
-                     <div className="pt-3 border-t border-gray-700">
-                        <span className="text-xs text-muted block mb-1">Note:</span>
-                        <p className="text-gray-300 text-sm whitespace-pre-wrap leading-relaxed">
-                            {log.notes}
+
+                 {log.food && (
+                    <div className="pt-3 border-t border-gray-700">
+                        <span className="text-xs text-muted block mb-1 flex items-center gap-1"><Utensils size={10}/> Cibo Assunto:</span>
+                        <p className="text-white text-sm">
+                            {log.food}
                         </p>
-                     </div>
+                    </div>
                  )}
             </div>
         </div>
+
+        {/* Notes */}
+        {log.notes && (
+            <div className="bg-surface p-4 rounded-xl border border-gray-700">
+                <div className="flex items-center gap-2 text-primary text-sm font-bold mb-3 uppercase">
+                    <FileText size={16} /> Note
+                </div>
+                <p className="text-gray-300 text-sm whitespace-pre-wrap leading-relaxed">
+                    {log.notes}
+                </p>
+            </div>
+        )}
 
         {/* Footer Actions */}
         <div className="pt-4">

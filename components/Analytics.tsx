@@ -280,44 +280,42 @@ export const Analytics: React.FC = () => {
           className="fixed inset-0 z-[100] bg-background flex flex-col pt-safe pl-safe pr-safe pb-safe"
           style={{ overscrollBehavior: 'none' }}
         >
-          {/* Header Controls - Explicit Top Padding to cover Notch Area fully */}
-          <div className="flex-none pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 px-4 border-b border-gray-800 flex justify-between items-center bg-background/95 backdrop-blur-md">
-            <h2 className="font-bold text-lg">Analisi Periodo</h2>
+          {/* Header Controls - Compact single row for landscape optimization */}
+          <div className="flex-none pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 px-4 border-b border-gray-800 flex items-center gap-4 bg-background z-20">
+             <div className="flex-1 flex gap-2 items-center">
+                <div className="flex-1">
+                    <label className="text-[10px] uppercase text-muted font-bold block mb-1">Dal</label>
+                    <input 
+                    type="date" 
+                    value={dateRange.start}
+                    onChange={e => setDateRange({...dateRange, start: e.target.value})}
+                    className="w-full bg-surface border border-gray-600 rounded-lg p-2 text-sm text-white focus:ring-1 focus:ring-primary outline-none"
+                    />
+                </div>
+                <div className="flex-1">
+                    <label className="text-[10px] uppercase text-muted font-bold block mb-1">Al</label>
+                    <input 
+                    type="date" 
+                    value={dateRange.end}
+                    onChange={e => setDateRange({...dateRange, end: e.target.value})}
+                    className="w-full bg-surface border border-gray-600 rounded-lg p-2 text-sm text-white focus:ring-1 focus:ring-primary outline-none"
+                    />
+                </div>
+             </div>
+
             <button 
               onClick={() => setIsFullScreen(false)}
-              className="p-2 bg-surface hover:bg-gray-700 rounded-full text-white transition-colors"
+              className="p-3 bg-surface hover:bg-gray-700 rounded-full text-white transition-colors flex-none"
             >
                 <X size={20} />
             </button>
           </div>
 
-          {/* Date Range Picker */}
-          <div className="flex-none grid grid-cols-2 gap-4 p-4 border-b border-gray-800 bg-surface/30">
-             <div>
-                <label className="text-[10px] uppercase text-muted font-bold block mb-1">Dal</label>
-                <input 
-                  type="date" 
-                  value={dateRange.start}
-                  onChange={e => setDateRange({...dateRange, start: e.target.value})}
-                  className="w-full bg-surface border border-gray-600 rounded-lg p-2 text-sm text-white focus:ring-1 focus:ring-primary outline-none"
-                />
-             </div>
-             <div>
-                <label className="text-[10px] uppercase text-muted font-bold block mb-1">Al</label>
-                <input 
-                  type="date" 
-                  value={dateRange.end}
-                  onChange={e => setDateRange({...dateRange, end: e.target.value})}
-                  className="w-full bg-surface border border-gray-600 rounded-lg p-2 text-sm text-white focus:ring-1 focus:ring-primary outline-none"
-                />
-             </div>
-          </div>
-
           {/* Chart Content Container - Fill Remaining Space */}
-          <div className="flex-1 min-h-0 relative p-4 bg-background">
+          <div className="flex-1 min-h-0 relative p-4 bg-background w-full">
               {fullTrendData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={fullTrendData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                      <LineChart data={fullTrendData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
                       <XAxis dataKey="date" stroke="#64748b" tick={{fontSize: 12}} tickLine={false} axisLine={false} interval="preserveStartEnd" />
                       <YAxis stroke="#64748b" tick={{fontSize: 12}} tickLine={false} axisLine={false} domain={[0, 10]} />
