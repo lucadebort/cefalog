@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../services/supabaseClient';
 import { Button } from './ui/Button';
-import { Activity, Mail, Lock, Loader2 } from 'lucide-react';
+import { Mail, Lock, Loader2 } from 'lucide-react';
 
 export const Auth: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -43,10 +43,36 @@ export const Auth: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center p-4 bg-background pt-[calc(env(safe-area-inset-top)+1rem)] pb-safe">
       <div className="w-full max-w-md bg-surface p-8 rounded-2xl border border-gray-800 shadow-2xl">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
-            <Activity size={32} />
+          {/* Liquid Glass Icon */}
+          <div className="w-24 h-24 mx-auto mb-4 relative">
+             <svg viewBox="0 0 512 512" className="w-full h-full drop-shadow-2xl">
+                <defs>
+                    <linearGradient id="liquid-auth" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style={{stopColor:'#6366f1', stopOpacity:1}} />
+                    <stop offset="100%" style={{stopColor:'#a855f7', stopOpacity:1}} />
+                    </linearGradient>
+                    <linearGradient id="glass-auth" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style={{stopColor:'white', stopOpacity:0.4}} />
+                    <stop offset="100%" style={{stopColor:'white', stopOpacity:0}} />
+                    </linearGradient>
+                    <filter id="glow-auth">
+                    <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+                    <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                    </filter>
+                </defs>
+                {/* Background removed to blend with app background or just the icon logic */}
+                <circle cx="256" cy="256" r="140" fill="url(#liquid-auth)" filter="url(#glow-auth)" opacity="0.9"/>
+                <ellipse cx="256" cy="200" rx="100" ry="60" fill="url(#glass-auth)"/>
+                <path d="M146 256 L206 256 L236 156 L276 356 L306 256 L366 256" 
+                      stroke="white" strokeWidth="24" strokeLinecap="round" strokeLinejoin="round" fill="none" 
+                      filter="url(#glow-auth)"/>
+            </svg>
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">CefaLog</h1>
+          
+          <h1 className="text-3xl font-bold text-white mb-2">CefaLog</h1>
           <p className="text-muted text-sm">Diario per il monitoraggio delle cefalee, creato appositamente per te da.. Luca!</p>
         </div>
 
