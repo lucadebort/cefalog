@@ -12,7 +12,7 @@ interface LogFormProps {
 export const LogForm: React.FC<LogFormProps> = ({ onClose, editTarget }) => {
   const [formData, setFormData] = useState<Partial<HeadacheLog>>({
     intensity: 5,
-    quality: PainQuality.PULSING,
+    quality: undefined, // Changed from default value to undefined for placeholder
     locations: [],
     hasAura: false,
     isLightSensitive: false,
@@ -92,7 +92,7 @@ export const LogForm: React.FC<LogFormProps> = ({ onClose, editTarget }) => {
       startedAt: new Date(formData.startedAt || Date.now()).toISOString(),
       endedAt: finalEnd,
       intensity: formData.intensity || 0,
-      quality: formData.quality || PainQuality.OTHER,
+      quality: formData.quality || PainQuality.OTHER, // Default fallback if still undefined
       locations: formData.locations || [],
       hasAura: formData.hasAura || false,
       isLightSensitive: formData.isLightSensitive || false,
@@ -199,13 +199,13 @@ export const LogForm: React.FC<LogFormProps> = ({ onClose, editTarget }) => {
             <h3>Orario</h3>
           </div>
           <div className="grid grid-cols-1 gap-4">
-            <div className="min-w-0"> {/* min-w-0 prevents flex item from overflowing */}
+            <div className="min-w-0">
               <label className="block text-xs text-muted uppercase mb-1">Inizio</label>
               <input 
                 type="datetime-local" 
                 value={formData.startedAt}
                 onChange={e => setFormData({...formData, startedAt: e.target.value})}
-                className="w-full max-w-full box-border bg-surface border border-gray-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-primary outline-none text-sm appearance-none"
+                className="w-full h-12 max-w-full box-border bg-surface border border-gray-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-primary outline-none text-sm appearance-none flex items-center"
               />
             </div>
             <div className="min-w-0">
@@ -214,7 +214,7 @@ export const LogForm: React.FC<LogFormProps> = ({ onClose, editTarget }) => {
                 type="datetime-local" 
                 value={formData.endedAt || ''}
                 onChange={e => setFormData({...formData, endedAt: e.target.value})}
-                className="w-full max-w-full box-border bg-surface border border-gray-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-primary outline-none text-sm appearance-none"
+                className="w-full h-12 max-w-full box-border bg-surface border border-gray-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-primary outline-none text-sm appearance-none flex items-center"
               />
             </div>
           </div>
@@ -294,12 +294,13 @@ export const LogForm: React.FC<LogFormProps> = ({ onClose, editTarget }) => {
           </div>
           <div className="bg-surface p-4 rounded-xl border border-gray-700">
              <select 
-                value={formData.quality}
+                value={formData.quality || ''}
                 onChange={e => setFormData({...formData, quality: e.target.value as PainQuality})}
-                className="w-full bg-background border border-gray-600 rounded-lg p-3 text-white focus:ring-2 focus:ring-primary outline-none"
+                className={`w-full bg-background border border-gray-600 rounded-lg p-3 focus:ring-2 focus:ring-primary outline-none ${!formData.quality ? 'text-gray-500' : 'text-white'}`}
               >
+                <option value="" disabled>Seleziona dalla lista</option>
                 {Object.values(PainQuality).map(q => (
-                  <option key={q} value={q}>{q}</option>
+                  <option key={q} value={q} className="text-black">{q}</option>
                 ))}
               </select>
           </div>
@@ -316,7 +317,7 @@ export const LogForm: React.FC<LogFormProps> = ({ onClose, editTarget }) => {
                { key: 'hasAura', label: 'Aura (Visiva)' },
                { key: 'isLightSensitive', label: 'Fotofobia (Luce)' },
                { key: 'isSoundSensitive', label: 'Fonofobia (Suoni)' },
-               { key: 'isSmellSensitive', label: 'Osmofobia (Odori)' }, // New
+               { key: 'isSmellSensitive', label: 'Osmofobia (Odori)' }, 
                { key: 'hasNausea', label: 'Nausea/Vomito' },
                { key: 'worsenedByMovement', label: 'Peggiora muovendosi' },
              ].map((item) => (
