@@ -26,17 +26,12 @@ export const Analytics: React.FC = () => {
   useEffect(() => {
     if (isFullScreen) {
       document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
+      // We don't mess with position/width here anymore to allow natural resizing
     } else {
       document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
     }
     return () => {
       document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
     };
   }, [isFullScreen]);
 
@@ -267,11 +262,10 @@ export const Analytics: React.FC = () => {
         </div>
       </div>
 
-      {/* --- FULL SCREEN MODAL (True Edge-to-Edge with Rotated Safe Areas) --- */}
+      {/* --- FULL SCREEN MODAL --- */}
       {isFullScreen && (
         <div 
-          className="fixed top-1/2 left-1/2 z-50 bg-background flex flex-col origin-center -translate-x-1/2 -translate-y-1/2 rotate-90 pl-safe-rotated pr-safe-rotated"
-          style={{ width: '100vh', height: '100vw' }}
+          className="fixed inset-0 z-50 bg-background flex flex-col pt-safe pl-safe pr-safe pb-safe"
         >
           {/* Header Controls */}
           <div className="flex-none p-4 border-b border-gray-800 flex justify-between items-center bg-surface/50 backdrop-blur-md">
@@ -307,38 +301,33 @@ export const Analytics: React.FC = () => {
           </div>
 
           {/* Chart Content Container - Fill Remaining Space */}
-          <div className="flex-1 min-h-0 relative">
-             {/* No internal padding or margins, just the chart container */}
-             <div className="w-full h-full flex flex-col">
-                <div className="flex-1 min-h-0 p-4">
-                    {fullTrendData.length > 0 ? (
-                        <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={fullTrendData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                            <XAxis dataKey="date" stroke="#64748b" tick={{fontSize: 12}} tickLine={false} axisLine={false} interval="preserveStartEnd" />
-                            <YAxis stroke="#64748b" tick={{fontSize: 12}} tickLine={false} axisLine={false} domain={[0, 10]} />
-                            <Tooltip 
-                                contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#f1f5f9', fontSize: '14px' }}
-                                itemStyle={{ color: '#f43f5e' }}
-                                labelFormatter={(label, payload) => payload[0]?.payload.fullDate || label}
-                            />
-                            <Line 
-                                type="monotone" 
-                                dataKey="intensity" 
-                                stroke="#f43f5e" 
-                                strokeWidth={3} 
-                                dot={{r: 4, fill:'#f43f5e'}} 
-                                activeDot={{r: 8}} 
-                            />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    ) : (
-                        <div className="flex items-center justify-center h-full text-muted">
-                            Nessun dato nel periodo selezionato
-                        </div>
-                    )}
-                </div>
-             </div>
+          <div className="flex-1 min-h-0 relative p-4">
+              {fullTrendData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={fullTrendData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                      <XAxis dataKey="date" stroke="#64748b" tick={{fontSize: 12}} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+                      <YAxis stroke="#64748b" tick={{fontSize: 12}} tickLine={false} axisLine={false} domain={[0, 10]} />
+                      <Tooltip 
+                          contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#f1f5f9', fontSize: '14px' }}
+                          itemStyle={{ color: '#f43f5e' }}
+                          labelFormatter={(label, payload) => payload[0]?.payload.fullDate || label}
+                      />
+                      <Line 
+                          type="monotone" 
+                          dataKey="intensity" 
+                          stroke="#f43f5e" 
+                          strokeWidth={3} 
+                          dot={{r: 4, fill:'#f43f5e'}} 
+                          activeDot={{r: 8}} 
+                      />
+                      </LineChart>
+                  </ResponsiveContainer>
+              ) : (
+                  <div className="flex items-center justify-center h-full text-muted">
+                      Nessun dato nel periodo selezionato
+                  </div>
+              )}
           </div>
         </div>
       )}

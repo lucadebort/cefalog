@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Trash2, Calendar as CalendarIcon, List, Clock, ChevronLeft, ChevronRight, Search, Filter, Loader2 } from 'lucide-react';
+import { Trash2, Calendar as CalendarIcon, List, Clock, ChevronLeft, ChevronRight, Search, Filter, Loader2, ChevronRight as ChevronRightIcon } from 'lucide-react';
 import { HeadacheLog } from '../types';
 import { getLogs, deleteLog } from '../services/storageService';
 
-export const HistoryList: React.FC = () => {
+interface HistoryListProps {
+  onSelectLog?: (log: HeadacheLog) => void;
+}
+
+export const HistoryList: React.FC<HistoryListProps> = ({ onSelectLog }) => {
   const [logs, setLogs] = useState<HeadacheLog[]>([]);
   const [filteredLogs, setFilteredLogs] = useState<HeadacheLog[]>([]);
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
@@ -64,13 +68,6 @@ export const HistoryList: React.FC = () => {
     }
 
     setFilteredLogs(result);
-  };
-
-  const handleDelete = async (id: string) => {
-    if (confirm('Sei sicuro di voler eliminare questo diario?')) {
-      await deleteLog(id);
-      fetchData(); // Re-fetch to sync with DB
-    }
   };
 
   const calculateDuration = (start: string, end?: string) => {
@@ -144,15 +141,19 @@ export const HistoryList: React.FC = () => {
             }
 
             return (
-              <div 
+              <button 
                 key={day} 
+                onClick={() => {
+                   if (hasLog && onSelectLog) onSelectLog(dayLogs[0]); // Select first log of the day for now
+                }}
+                disabled={!hasLog}
                 className={`aspect-square rounded-lg border flex flex-col items-center justify-center relative transition-colors ${bgClass}`}
               >
                 <span className={`text-sm ${textClass}`}>{day}</span>
                 {hasLog && (
                   <div className={`w-1.5 h-1.5 rounded-full mt-1 ${maxIntensity >= 7 ? 'bg-red-500' : maxIntensity >= 4 ? 'bg-orange-500' : 'bg-green-500'}`} />
                 )}
-              </div>
+              </button>
             );
           })}
         </div>
@@ -246,7 +247,11 @@ export const HistoryList: React.FC = () => {
       ) : (
         <div className="space-y-4">
           {filteredLogs.map(log => (
-            <div key={log.id} className="bg-surface rounded-xl border border-gray-700 overflow-hidden">
+            <button 
+              key={log.id} 
+              onClick={() => onSelectLog && onSelectLog(log)}
+              className="w-full text-left bg-surface rounded-xl border border-gray-700 overflow-hidden hover:border-gray-500 transition-colors active:scale-[0.99]"
+            >
               <div className="p-4">
                 <div className="flex justify-between items-start mb-2">
                   <div>
@@ -262,10 +267,11 @@ export const HistoryList: React.FC = () => {
                         }>{log.intensity}</span>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right flex flex-col items-end gap-2">
                     <span className="text-xs bg-gray-700 px-2 py-1 rounded text-gray-300">
                       {log.quality}
                     </span>
+                    <ChevronRightIcon size={16} className="text-muted" />
                   </div>
                 </div>
 
@@ -280,7 +286,7 @@ export const HistoryList: React.FC = () => {
                 </div>
 
                 {log.triggers.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mb-3">
+                  <div className="flex flex-wrap gap-1">
                     {log.triggers.map(t => (
                       <span key={t} className="text-[10px] uppercase tracking-wider bg-background border border-gray-700 px-1.5 py-0.5 rounded text-gray-500">
                         {t}
@@ -294,15 +300,13 @@ export const HistoryList: React.FC = () => {
                 <span className="text-xs text-gray-500">
                   {log.hasAura ? '⚡ Aura ' : ''}
                   {log.isLightSensitive ? '☀️ Fotofobia ' : ''}
+                  {log.hasNausea ? '🤢 Nausea' : ''}
                 </span>
-                <button 
-                  onClick={() => handleDelete(log.id)}
-                  className="text-gray-500 hover:text-red-500 transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                <span className="text-[10px] text-primary uppercase font-bold tracking-wide">
+                  Vedi Dettaglio
+                </span>
               </div>
-            </div>
+            </button>
           ))}
 
           {filteredLogs.length === 0 && (

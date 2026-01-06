@@ -62,4 +62,4 @@ export const COMMON_TRIGGERS = [
   'Cervicale'
 ];
 
-export type ViewState = 'dashboard' | 'log' | 'history' | 'analytics';
+export type ViewState = 'dashboard' | 'log' | 'history' | 'analytics' | 'detail';

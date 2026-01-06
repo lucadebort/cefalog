@@ -12,9 +12,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="CefaLog" />
     
-    <!-- Icons (Using a generic SVG for now, ideally replace with real PNGs in production) -->
-    <link rel="apple-touch-icon" href="https://esm.sh/lucide-static@0.344.0/icons/activity.svg" />
-    <link rel="icon" type="image/svg+xml" href="https://esm.sh/lucide-static@0.344.0/icons/activity.svg" />
+    <!-- Professional Icons (Data URI to prevent 404s) -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%234f46e5;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23db2777;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='120' fill='url(%23grad)'/%3E%3Cpath d='M256 128c-70.7 0-128 57.3-128 128 0 70.7 57.3 128 128 128 70.7 0 128-57.3 128-128 0-70.7-57.3-128-128-128zm0 224c-53 0-96-43-96-96s43-96 96-96 96 43 96 96-43 96-96 96z' fill='white' opacity='0.2'/%3E%3Cpath d='M368 256c0-61.9-50.1-112-112-112S144 194.1 144 256s50.1 112 112 112 112-50.1 112-112zM256 336c-44.1 0-80-35.9-80-80s35.9-80 80-80 80 35.9 80 80-35.9 80-80 80z' fill='white'/%3E%3Cpath d='M256 208v48h48' stroke='%234f46e5' stroke-width='24' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%234f46e5;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23db2777;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='120' fill='url(%23grad)'/%3E%3Cpath d='M256 128c-70.7 0-128 57.3-128 128 0 70.7 57.3 128 128 128 70.7 0 128-57.3 128-128 0-70.7-57.3-128-128-128zm0 224c-53 0-96-43-96-96s43-96 96-96 96 43 96 96-43 96-96 96z' fill='white' opacity='0.2'/%3E%3Cpath d='M368 256c0-61.9-50.1-112-112-112S144 194.1 144 256s50.1 112 112 112 112-50.1 112-112zM256 336c-44.1 0-80-35.9-80-80s35.9-80 80-80 80 35.9 80 80-35.9 80-80 80z' fill='white'/%3E%3Cpath d='M256 208v48h48' stroke='%234f46e5' stroke-width='24' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E" />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -68,12 +68,12 @@
         padding-bottom: env(safe-area-inset-bottom);
       }
       
-      /* Rotated Landscape Safe Areas */
-      .pl-safe-rotated {
-        padding-left: env(safe-area-inset-top);
+      /* Landscape Safe Areas */
+      .pl-safe {
+        padding-left: env(safe-area-inset-left);
       }
-      .pr-safe-rotated {
-        padding-right: env(safe-area-inset-bottom);
+      .pr-safe {
+        padding-right: env(safe-area-inset-right);
       }
     </style>
   <script type="importmap">

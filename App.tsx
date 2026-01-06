@@ -4,14 +4,19 @@ import { Dashboard } from './components/Dashboard';
 import { LogForm } from './components/LogForm';
 import { HistoryList } from './components/HistoryList';
 import { Analytics } from './components/Analytics';
+import { LogDetail } from './components/LogDetail';
 import { Auth } from './components/Auth';
-import { ViewState } from './types';
+import { ViewState, HeadacheLog } from './types';
 import { supabase } from './services/supabaseClient';
+import { deleteLog } from './services/storageService';
 
 const App: React.FC = () => {
   const [view, setView] = useState<ViewState>('dashboard');
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  
+  // State for the Detail View logic
+  const [selectedLog, setSelectedLog] = useState<HeadacheLog | null>(null);
 
   useEffect(() => {
     // Check active session
@@ -46,32 +51,63 @@ const App: React.FC = () => {
     return <Auth />;
   }
 
+  // --- Handlers ---
+  const handleSelectLog = (log: HeadacheLog) => {
+    setSelectedLog(log);
+    setView('detail');
+  };
+
+  const handleDeleteLog = async (id: string) => {
+    await deleteLog(id);
+    setView('history');
+  };
+
+  const handleStartEdit = (log: HeadacheLog) => {
+    setSelectedLog(log);
+    setView('log');
+  };
+
+  const handleNewLog = () => {
+    setSelectedLog(null); // Ensure we are clearing any selection
+    setView('log');
+  };
+
   const renderContent = () => {
     switch (view) {
       case 'dashboard':
-        return <Dashboard onLogNew={() => setView('log')} onViewHistory={() => setView('history')} />;
+        return <Dashboard onLogNew={handleNewLog} onViewHistory={() => setView('history')} />;
       case 'log':
-        return <LogForm onClose={() => setView('dashboard')} />;
+        // If selectedLog is present, we are editing, otherwise creating/updating active
+        return <LogForm onClose={() => setView('history')} editTarget={selectedLog} />;
       case 'history':
-        return <HistoryList />;
+        return <HistoryList onSelectLog={handleSelectLog} />;
+      case 'detail':
+        return selectedLog ? (
+           <LogDetail 
+             log={selectedLog} 
+             onBack={() => setView('history')} 
+             onEdit={handleStartEdit}
+             onDelete={handleDeleteLog}
+            /> 
+        ) : <HistoryList onSelectLog={handleSelectLog} />;
       case 'analytics':
         return <Analytics />;
       default:
-        return <Dashboard onLogNew={() => setView('log')} onViewHistory={() => setView('history')} />;
+        return <Dashboard onLogNew={handleNewLog} onViewHistory={() => setView('history')} />;
     }
   };
 
   return (
     <div className="min-h-screen bg-background text-text font-sans antialiased selection:bg-primary/30">
       
-      {/* Main Content Area - Added pt-safe for top notch clearance */}
-      <main className="max-w-md mx-auto min-h-screen p-4 md:p-6 pt-safe relative">
+      {/* Main Content Area - Added pt-safe AND extra pt-6 for top notch clearance */}
+      <main className="max-w-md mx-auto min-h-screen p-4 md:p-6 pt-safe pt-8 pb-24 relative">
         {renderContent()}
       </main>
 
-      {/* Bottom Navigation - Added pb-safe for home indicator */}
-      {view !== 'log' && (
-        <nav className="fixed bottom-0 left-0 right-0 border-t border-gray-800 bg-surface/90 backdrop-blur-lg pb-safe z-40">
+      {/* Bottom Navigation - Hidden in Log and Detail views */}
+      {view !== 'log' && view !== 'detail' && (
+        <nav className="fixed bottom-0 left-0 right-0 border-t border-gray-800 bg-surface/95 backdrop-blur-lg pb-safe z-40 shadow-[0_-5px_15px_rgba(0,0,0,0.3)]">
           <div className="max-w-md mx-auto flex justify-around items-center h-16 px-2">
             <NavButton 
               active={view === 'dashboard'} 
@@ -83,7 +119,7 @@ const App: React.FC = () => {
             {/* FAB for Quick Log */}
             <div className="relative -top-5">
               <button 
-                onClick={() => setView('log')}
+                onClick={handleNewLog}
                 className="w-14 h-14 rounded-full bg-primary text-white shadow-lg shadow-primary/40 flex items-center justify-center transform active:scale-95 transition-transform"
               >
                 <PlusCircle size={28} />

@@ -6,9 +6,10 @@ import { saveLog, updateLog, getActiveHeadache } from '../services/storageServic
 
 interface LogFormProps {
   onClose: () => void;
+  editTarget?: HeadacheLog | null; // Optional: If passed, we are editing this specific log
 }
 
-export const LogForm: React.FC<LogFormProps> = ({ onClose }) => {
+export const LogForm: React.FC<LogFormProps> = ({ onClose, editTarget }) => {
   const [formData, setFormData] = useState<Partial<HeadacheLog>>({
     intensity: 5,
     quality: PainQuality.PULSING,
@@ -29,18 +30,30 @@ export const LogForm: React.FC<LogFormProps> = ({ onClose }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Check if there is an active headache to continue
-    getActiveHeadache().then(active => {
-      if (active) {
-        setIsEditingExisting(true);
-        setFormData({
-          ...active,
-          startedAt: new Date(active.startedAt).toISOString().slice(0, 16),
-          endedAt: active.endedAt ? new Date(active.endedAt).toISOString().slice(0, 16) : ''
-        });
-      }
-    });
-  }, []);
+    const initForm = async () => {
+        if (editTarget) {
+            // Case 1: Explicit edit request from History/Detail
+            setIsEditingExisting(true);
+            setFormData({
+                ...editTarget,
+                startedAt: new Date(editTarget.startedAt).toISOString().slice(0, 16),
+                endedAt: editTarget.endedAt ? new Date(editTarget.endedAt).toISOString().slice(0, 16) : ''
+            });
+        } else {
+            // Case 2: New log (or auto-resume active headache)
+            const active = await getActiveHeadache();
+            if (active) {
+                setIsEditingExisting(true);
+                setFormData({
+                    ...active,
+                    startedAt: new Date(active.startedAt).toISOString().slice(0, 16),
+                    endedAt: active.endedAt ? new Date(active.endedAt).toISOString().slice(0, 16) : ''
+                });
+            }
+        }
+    };
+    initForm();
+  }, [editTarget]);
 
   const toggleLocation = (loc: Location) => {
     const current = formData.locations || [];
@@ -69,7 +82,7 @@ export const LogForm: React.FC<LogFormProps> = ({ onClose }) => {
     } else if (finalEnd) {
       finalEnd = new Date(finalEnd).toISOString();
     } else {
-      finalEnd = undefined;
+      finalEnd = undefined; // Ensure it stays undefined if empty string
     }
 
     const finalData: HeadacheLog = {
@@ -163,26 +176,25 @@ export const LogForm: React.FC<LogFormProps> = ({ onClose }) => {
 
   return (
     <div className="pb-24 animate-fade-in">
-      {/* Header with pt-safe for notch support */}
-      <div className="sticky top-0 bg-background/95 backdrop-blur z-20 py-4 pt-safe border-b border-gray-800 flex justify-between items-center mb-6">
+      {/* Header with pt-safe for notch support - Increased padding */}
+      <div className="sticky top-0 bg-background/95 backdrop-blur z-20 py-4 pt-safe pt-6 border-b border-gray-800 flex justify-between items-center mb-6">
         <button onClick={onClose} className="p-2 -ml-2 text-muted hover:text-white">
           <ArrowLeft />
         </button>
         <h2 className="font-bold text-lg">
-           {/* If pt-safe pushes it down too much visually, the flex alignment handles it, but we add mt-1 to balance */}
            <span className="mt-1 block">{isEditingExisting ? 'Modifica Diario' : 'Nuovo Diario'}</span>
         </h2>
         <div className="w-8" />
       </div>
 
       <div className="space-y-8">
-        {/* Section: Timing */}
+        {/* Section: Timing - Stacked Layout */}
         <section>
           <div className="flex items-center gap-2 text-primary font-medium mb-3">
             <Clock className="w-5 h-5" />
             <h3>Orario</h3>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div>
               <label className="block text-xs text-muted uppercase mb-1">Inizio</label>
               <input 
