@@ -61,7 +61,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onLogNew, onViewHistory })
   }
 
   return (
-    <div className="space-y-6 pb-24 animate-fade-in mt-2">
+    // Added pt-[calc(env(safe-area-inset-top)+2rem)] to properly space content below the notch
+    <div className="space-y-6 pb-24 animate-fade-in pt-[calc(env(safe-area-inset-top)+2rem)]">
       <header className="flex justify-between items-center mb-2">
         <div>
           <h1 className="text-2xl font-bold text-text">Ciao, Fratello</h1>

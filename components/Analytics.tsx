@@ -144,7 +144,8 @@ export const Analytics: React.FC = () => {
   const printReport = () => window.print();
 
   return (
-    <div className="pb-24 animate-fade-in space-y-6 mt-2">
+    // Added pt-[calc(env(safe-area-inset-top)+2rem)]
+    <div className="pb-24 animate-fade-in space-y-6 pt-[calc(env(safe-area-inset-top)+2rem)]">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Analisi</h2>
         <button onClick={printReport} className="text-xs text-primary font-medium border border-primary px-3 py-1 rounded-full">

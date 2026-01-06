@@ -176,8 +176,8 @@ export const LogForm: React.FC<LogFormProps> = ({ onClose, editTarget }) => {
 
   return (
     <div className="pb-24 animate-fade-in">
-      {/* Header with pt-safe for notch support - Increased padding */}
-      <div className="sticky top-0 bg-background/95 backdrop-blur z-20 py-4 pt-safe pt-6 border-b border-gray-800 flex justify-between items-center mb-6">
+      {/* Header with EXPLICIT calc() safe area padding + 1.5rem (24px) for visual spacing */}
+      <div className="sticky top-0 bg-background/95 backdrop-blur z-50 py-4 pt-[calc(env(safe-area-inset-top)+1.5rem)] border-b border-gray-800 flex justify-between items-center mb-6">
         <button onClick={onClose} className="p-2 -ml-2 text-muted hover:text-white">
           <ArrowLeft />
         </button>

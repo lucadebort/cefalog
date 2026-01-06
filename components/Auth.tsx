@@ -40,7 +40,7 @@ export const Auth: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background pt-safe pb-safe">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background pt-[calc(env(safe-area-inset-top)+1rem)] pb-safe">
       <div className="w-full max-w-md bg-surface p-8 rounded-2xl border border-gray-800 shadow-2xl">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">

@@ -100,8 +100,8 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-background text-text font-sans antialiased selection:bg-primary/30">
       
-      {/* Main Content Area - Added pt-safe AND extra pt-6 for top notch clearance */}
-      <main className="max-w-md mx-auto min-h-screen p-4 md:p-6 pt-safe pt-8 pb-24 relative">
+      {/* Main Content Area - Handled SAFE AREA padding inside individual components to avoid conflicts */}
+      <main className="max-w-md mx-auto min-h-screen px-4 md:px-6 relative">
         {renderContent()}
       </main>
 
