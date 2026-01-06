@@ -43,7 +43,7 @@ export const Auth: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center p-4 bg-background pt-[calc(env(safe-area-inset-top)+1rem)] pb-safe">
       <div className="w-full max-w-md bg-surface p-8 rounded-2xl border border-gray-800 shadow-2xl">
         <div className="text-center mb-8">
-          {/* Liquid Glass Icon */}
+          {/* Liquid Glass Icon - Full Bleed Rounded Square with Clip Path to fix corner artifacts */}
           <div className="w-24 h-24 mx-auto mb-4 relative">
              <svg viewBox="0 0 512 512" className="w-full h-full drop-shadow-2xl">
                 <defs>
@@ -52,23 +52,27 @@ export const Auth: React.FC = () => {
                     <stop offset="100%" style={{stopColor:'#a855f7', stopOpacity:1}} />
                     </linearGradient>
                     <linearGradient id="glass-auth" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style={{stopColor:'white', stopOpacity:0.4}} />
+                    <stop offset="0%" style={{stopColor:'white', stopOpacity:0.35}} />
                     <stop offset="100%" style={{stopColor:'white', stopOpacity:0}} />
                     </linearGradient>
-                    <filter id="glow-auth">
-                    <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
-                    <feMerge>
-                        <feMergeNode in="coloredBlur"/>
-                        <feMergeNode in="SourceGraphic"/>
-                    </feMerge>
+                    <filter id="shadow-auth">
+                    <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#000" floodOpacity="0.25"/>
                     </filter>
+                    <clipPath id="auth-clip">
+                        <rect width="512" height="512" rx="128" />
+                    </clipPath>
                 </defs>
-                {/* Background removed to blend with app background or just the icon logic */}
-                <circle cx="256" cy="256" r="140" fill="url(#liquid-auth)" filter="url(#glow-auth)" opacity="0.9"/>
-                <ellipse cx="256" cy="200" rx="100" ry="60" fill="url(#glass-auth)"/>
-                <path d="M146 256 L206 256 L236 156 L276 356 L306 256 L366 256" 
-                      stroke="white" strokeWidth="24" strokeLinecap="round" strokeLinejoin="round" fill="none" 
-                      filter="url(#glow-auth)"/>
+                
+                {/* Background and Glass Effect Clipped to Rounded Shape */}
+                <g clipPath="url(#auth-clip)">
+                    <rect width="512" height="512" fill="url(#liquid-auth)" />
+                    <path d="M0 0 L512 0 L512 240 Q 256 420 0 240 Z" fill="url(#glass-auth)" opacity="0.6"/>
+                </g>
+
+                {/* Pulse Path */}
+                <path d="M96 256 L176 256 L216 116 L296 396 L336 256 L416 256" 
+                      stroke="white" strokeWidth="32" strokeLinecap="round" strokeLinejoin="round" fill="none" 
+                      filter="url(#shadow-auth)"/>
             </svg>
           </div>
           
