@@ -1,0 +1,5 @@
+{
+  "name": "CefaLog",
+  "description": "A scientific, privacy-first headache diary designed for rapid logging and detailed doctor reports. Optimized for mobile use with a dark-mode-first design for photosensitivity.",
+  "requestFramePermissions": []
+}
