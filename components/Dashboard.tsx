@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Activity, Calendar, Zap, Loader2, LogOut } from 'lucide-react';
+import { Plus, Activity, Calendar, Zap, Loader2, LogOut, Share, X } from 'lucide-react';
 import { HeadacheLog } from '../types';
 import { getLogs, getActiveHeadache } from '../services/storageService';
 import { Button } from './ui/Button';
@@ -14,6 +14,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onLogNew, onViewHistory })
   const [logs, setLogs] = useState<HeadacheLog[]>([]);
   const [activeLog, setActiveLog] = useState<HeadacheLog | undefined>(undefined);
   const [loading, setLoading] = useState(true);
+  const [showInstallHint, setShowInstallHint] = useState(false);
 
   const loadData = async () => {
     try {
@@ -32,6 +33,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onLogNew, onViewHistory })
 
   useEffect(() => {
     loadData();
+
+    // Check if iOS and not in standalone mode
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+    
+    if (isIOS && !isStandalone) {
+      setShowInstallHint(true);
+    }
   }, []);
 
   const lastLog = logs[0];
@@ -66,6 +75,29 @@ export const Dashboard: React.FC<DashboardProps> = ({ onLogNew, onViewHistory })
           <LogOut size={16} />
         </button>
       </header>
+
+      {/* iOS Install Hint Banner */}
+      {showInstallHint && (
+        <div className="bg-surface/80 backdrop-blur border border-primary/30 p-4 rounded-xl relative animate-in fade-in slide-in-from-top-4">
+          <button 
+            onClick={() => setShowInstallHint(false)}
+            className="absolute top-2 right-2 text-muted hover:text-white p-1"
+          >
+            <X size={16} />
+          </button>
+          <div className="flex gap-3">
+             <div className="bg-primary/20 p-2 rounded-lg h-fit text-primary">
+               <Share size={20} />
+             </div>
+             <div>
+               <h3 className="font-bold text-sm text-white mb-1">Installa l'App</h3>
+               <p className="text-xs text-gray-300 leading-relaxed">
+                 Per un'esperienza migliore, tocca il tasto <strong>Condividi</strong> qui sotto in Safari e seleziona <strong>"Aggiungi alla schermata Home"</strong>.
+               </p>
+             </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Action Card */}
       <div className="bg-gradient-to-br from-indigo-900 to-slate-900 rounded-2xl p-6 border border-indigo-500/30 shadow-xl relative overflow-hidden">
