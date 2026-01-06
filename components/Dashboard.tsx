@@ -15,6 +15,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onLogNew, onViewHistory })
   const [activeLog, setActiveLog] = useState<HeadacheLog | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [showInstallHint, setShowInstallHint] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const loadData = async () => {
     try {
@@ -69,7 +70,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onLogNew, onViewHistory })
           <p className="text-muted text-sm">Spero tu stia bene oggi.</p>
         </div>
         <button 
-          onClick={() => supabase.auth.signOut()}
+          onClick={() => setShowLogoutConfirm(true)}
           className="h-10 w-10 rounded-full bg-surface border border-gray-700 flex items-center justify-center text-muted hover:text-white transition-colors"
           title="Esci"
         >
@@ -187,6 +188,32 @@ export const Dashboard: React.FC<DashboardProps> = ({ onLogNew, onViewHistory })
             )}
         </div>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-surface border border-gray-700 rounded-xl p-6 max-w-sm w-full shadow-2xl scale-100 animate-in zoom-in-95">
+            <h3 className="text-lg font-bold text-white mb-2">Vuoi uscire?</h3>
+            <p className="text-muted text-sm mb-6">Dovrai effettuare nuovamente il login per accedere al tuo diario.</p>
+            <div className="flex gap-3">
+              <Button 
+                variant="secondary" 
+                fullWidth 
+                onClick={() => setShowLogoutConfirm(false)}
+              >
+                Annulla
+              </Button>
+              <Button 
+                variant="danger" 
+                fullWidth 
+                onClick={() => supabase.auth.signOut()}
+              >
+                Esci
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
