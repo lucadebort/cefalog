@@ -106,31 +106,7 @@ export const Auth: React.FC = () => {
           </div>
           
           <h1 className="text-3xl font-bold text-white mb-2">CefaLog</h1>
-          <p className="text-muted text-sm">Diario per il monitoraggio delle cefalee, creato appositamente per te da.. Luca!</p>
-        </div>
-
-        {/* Auth Mode Toggle */}
-        <div className="flex p-1 bg-gray-900/50 rounded-xl mb-6 border border-gray-800">
-          <button
-            onClick={() => { setMode('signin'); setError(null); }}
-            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
-              mode === 'signin' 
-                ? 'bg-surface text-white shadow-sm border border-gray-700' 
-                : 'text-muted hover:text-gray-300'
-            }`}
-          >
-            Accedi
-          </button>
-          <button
-            onClick={() => { setMode('signup'); setError(null); }}
-            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
-              mode === 'signup' 
-                ? 'bg-surface text-white shadow-sm border border-gray-700' 
-                : 'text-muted hover:text-gray-300'
-            }`}
-          >
-            Registrati
-          </button>
+          <p className="text-muted text-sm">Diario per il monitoraggio delle cefalee.</p>
         </div>
 
         <form onSubmit={handleAuth} className="space-y-4">
@@ -171,10 +147,23 @@ export const Auth: React.FC = () => {
             </div>
           )}
 
-          <Button fullWidth size="lg" disabled={loading} className="mt-4">
+          <Button fullWidth size="lg" disabled={loading} className="mt-2">
             {loading ? <Loader2 className="animate-spin w-5 h-5" /> : (mode === 'signin' ? 'Accedi al Diario' : 'Crea Account')}
           </Button>
         </form>
+
+        {/* Bottom Switcher */}
+        <div className="mt-8 pt-6 border-t border-gray-800 text-center">
+            <p className="text-muted text-sm">
+                {mode === 'signin' ? "Non hai ancora un account?" : "Hai già un account?"}
+                <button
+                    onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(null); }}
+                    className="ml-2 text-primary font-bold hover:text-indigo-400 transition-colors focus:outline-none"
+                >
+                    {mode === 'signin' ? "Registrati" : "Accedi"}
+                </button>
+            </p>
+        </div>
       </div>
     </div>
   );

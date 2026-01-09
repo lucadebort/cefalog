@@ -279,3 +279,126 @@ export const Analytics: React.FC = () => {
               </ResponsiveContainer>
           ) : (
              <div className="h-full flex items-center justify-center text-muted text-xs">
+                Nessun dato sulla posizione.
+             </div>
+          )}
+        </div>
+      </div>
+
+      {/* --- TIME DISTRIBUTION --- */}
+      <div className="bg-surface p-4 rounded-xl border border-gray-700">
+        <h3 className="text-sm font-medium text-muted mb-4 uppercase tracking-wider flex items-center gap-2">
+            <Clock size={16}/> Orari Più Frequenti
+        </h3>
+        <div className="h-48 w-full flex items-center justify-center">
+             {activeTimeDist.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                        <Pie
+                            data={activeTimeDist}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={40}
+                            outerRadius={70}
+                            paddingAngle={5}
+                            dataKey="value"
+                        >
+                            {activeTimeDist.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={['#6366f1', '#f43f5e', '#a855f7', '#06b6d4'][index % 4]} />
+                            ))}
+                        </Pie>
+                        <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155' }} />
+                    </PieChart>
+                </ResponsiveContainer>
+             ) : (
+                <div className="text-muted text-xs">Dati insufficienti.</div>
+             )}
+        </div>
+        <div className="flex justify-center gap-4 mt-2">
+            {activeTimeDist.map((entry, index) => (
+                <div key={entry.name} className="flex items-center gap-1 text-[10px] text-gray-400">
+                    <div className="w-2 h-2 rounded-full" style={{backgroundColor: ['#6366f1', '#f43f5e', '#a855f7', '#06b6d4'][index % 4]}} />
+                    {entry.name}
+                </div>
+            ))}
+        </div>
+      </div>
+
+      {/* --- TOP TRIGGERS --- */}
+      <div className="bg-surface p-4 rounded-xl border border-gray-700">
+        <h3 className="text-sm font-medium text-muted mb-4 uppercase tracking-wider flex items-center gap-2">
+            <Zap size={16}/> Fattori Scatenanti Comuni
+        </h3>
+        <div className="space-y-3">
+            {sortedTriggers.length > 0 ? (
+                sortedTriggers.map(([name, count], i) => (
+                    <div key={name} className="flex items-center justify-between">
+                        <span className="text-sm text-gray-300">{i+1}. {name}</span>
+                        <div className="flex items-center gap-2">
+                            <div className="w-24 h-2 bg-gray-800 rounded-full overflow-hidden">
+                                <div 
+                                    className="h-full bg-accent rounded-full" 
+                                    style={{ width: `${(count / logs.length) * 100}%` }} 
+                                />
+                            </div>
+                            <span className="text-xs text-muted w-4">{count}</span>
+                        </div>
+                    </div>
+                ))
+            ) : (
+                <div className="text-center py-4 text-muted text-xs">Nessun trigger registrato.</div>
+            )}
+        </div>
+      </div>
+
+      {/* --- FULL SCREEN MODAL --- */}
+      {isFullScreen && (
+        <div className="fixed inset-0 z-[60] bg-background flex flex-col animate-in fade-in slide-in-from-bottom-4">
+            <div className="flex justify-between items-center p-4 border-b border-gray-800 bg-surface">
+                <h2 className="font-bold text-lg">Analisi Dettagliata</h2>
+                <button onClick={() => setIsFullScreen(false)} className="p-2 bg-gray-700 rounded-full hover:bg-gray-600">
+                    <X size={20} />
+                </button>
+            </div>
+            
+            <div className="p-4 border-b border-gray-800 flex gap-4 overflow-x-auto">
+                 <div className="flex-1 min-w-[120px]">
+                    <label className="text-xs text-muted block mb-1">Da</label>
+                    <input 
+                        type="date" 
+                        value={dateRange.start}
+                        onChange={(e) => setDateRange({...dateRange, start: e.target.value})}
+                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm"
+                    />
+                 </div>
+                 <div className="flex-1 min-w-[120px]">
+                    <label className="text-xs text-muted block mb-1">A</label>
+                    <input 
+                        type="date" 
+                        value={dateRange.end}
+                        onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
+                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm"
+                    />
+                 </div>
+            </div>
+
+            <div className="flex-1 p-4 overflow-y-auto">
+                 <div className="h-[400px] w-full min-w-[600px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={fullTrendData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                        <XAxis dataKey="fullDate" stroke="#64748b" tick={{fontSize: 10}} />
+                        <YAxis domain={[0, 10]} stroke="#64748b" />
+                        <Tooltip 
+                            contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155' }}
+                        />
+                        <Line type="monotone" dataKey="intensity" stroke="#f43f5e" strokeWidth={3} dot={{r: 4}} />
+                        </LineChart>
+                    </ResponsiveContainer>
+                 </div>
+            </div>
+        </div>
+      )}
+    </div>
+  );
+};
