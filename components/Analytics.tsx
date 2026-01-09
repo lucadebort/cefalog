@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import { HeadacheLog, LOCATION_COLORS } from '../types';
 import { getLogs } from '../services/storageService';
-import { Clock, Zap, Pill, Calendar, Maximize2, X, MapPin, Loader2 } from 'lucide-react';
+import { Clock, Zap, Pill, Calendar, Maximize2, X, MapPin, Loader2, Download, Printer } from 'lucide-react';
 
 export const Analytics: React.FC = () => {
   const [logs, setLogs] = useState<HeadacheLog[]>([]);
@@ -154,14 +154,79 @@ export const Analytics: React.FC = () => {
   // --- HELPERS ---
   const printReport = () => window.print();
 
+  const downloadCSV = () => {
+    const headers = [
+      'Inizio',
+      'Fine',
+      'Intensità (1-10)',
+      'Qualità Dolore',
+      'Zone',
+      'Aura',
+      'Nausea',
+      'Fotofobia',
+      'Fonofobia',
+      'Trigger',
+      'Farmaci',
+      'Cibo',
+      'Note'
+    ];
+
+    const escapeCsv = (str: string | undefined) => {
+      if (!str) return '';
+      // Escape quotes and wrap in quotes
+      return `"${str.replace(/"/g, '""')}"`;
+    };
+
+    const rows = logs.map(log => {
+      return [
+        new Date(log.startedAt).toLocaleString('it-IT'),
+        log.endedAt ? new Date(log.endedAt).toLocaleString('it-IT') : 'In corso',
+        log.intensity,
+        log.quality || '',
+        escapeCsv(log.locations.join(', ')),
+        log.hasAura ? 'Si' : 'No',
+        log.hasNausea ? 'Si' : 'No',
+        log.isLightSensitive ? 'Si' : 'No',
+        log.isSoundSensitive ? 'Si' : 'No',
+        escapeCsv(log.triggers.join(', ')),
+        escapeCsv(log.medication),
+        escapeCsv(log.food),
+        escapeCsv(log.notes)
+      ].join(',');
+    });
+
+    const csvContent = "\uFEFF" + [headers.join(','), ...rows].join('\n'); // \uFEFF for BOM (Excel compatibility)
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `cefalog_export_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="pb-24 animate-fade-in space-y-6 px-4">
       {/* Sticky Header */}
       <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-md pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 -mx-4 px-4 mb-4 flex justify-between items-center border-b border-gray-800/50">
         <h2 className="text-2xl font-bold">Analisi</h2>
-        <button onClick={printReport} className="text-xs text-primary font-medium border border-primary px-3 py-1 rounded-full">
-          Esporta Report
-        </button>
+        <div className="flex gap-2">
+            <button 
+                onClick={printReport} 
+                className="p-2 text-muted hover:text-white border border-gray-700 rounded-lg transition-colors"
+                title="Stampa PDF"
+            >
+                <Printer size={18} />
+            </button>
+            <button 
+                onClick={downloadCSV} 
+                className="flex items-center gap-2 text-xs bg-surface hover:bg-gray-700 text-primary font-medium border border-primary/30 px-3 py-2 rounded-lg transition-colors"
+            >
+                <Download size={14} />
+                <span>CSV</span>
+            </button>
+        </div>
       </div>
 
       {/* --- INTENSITY TREND (SMALL) --- */}
@@ -213,135 +278,4 @@ export const Analytics: React.FC = () => {
                 </BarChart>
               </ResponsiveContainer>
           ) : (
-             <div className="h-full flex items-center justify-center text-muted text-xs">Nessun dato locale</div>
-          )}
-        </div>
-      </div>
-
-       {/* --- TIME OF DAY DISTRIBUTION --- */}
-       <div className="bg-surface p-4 rounded-xl border border-gray-700">
-        <h3 className="text-sm font-medium text-muted mb-4 uppercase tracking-wider flex items-center gap-2">
-           <Clock size={16}/> Orari Critici
-        </h3>
-        <div className="h-40 w-full flex">
-           <div className="w-1/2 h-full">
-             {activeTimeDist.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={activeTimeDist} innerRadius={30} outerRadius={50} paddingAngle={5} dataKey="value">
-                      {activeTimeDist.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={['#6366f1', '#f43f5e', '#f59e0b', '#10b981'][index % 4]} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-             ) : (
-                <div className="flex items-center justify-center h-full text-xs text-muted">Dati mancanti</div>
-             )}
-           </div>
-           <div className="w-1/2 flex flex-col justify-center gap-2 text-xs">
-              {activeTimeDist.map((entry, index) => (
-                <div key={entry.name} className="flex items-center gap-2">
-                   <div className="w-2 h-2 rounded-full" style={{backgroundColor: ['#6366f1', '#f43f5e', '#f59e0b', '#10b981'][index % 4]}} />
-                   <span className="text-gray-300">{entry.name}</span>
-                </div>
-              ))}
-           </div>
-        </div>
-      </div>
-
-      {/* --- TOP TRIGGERS --- */}
-      <div className="bg-surface p-4 rounded-xl border border-gray-700">
-        <h3 className="text-sm font-medium text-muted mb-4 uppercase tracking-wider flex items-center gap-2">
-           <Zap size={16}/> Cause Principali
-        </h3>
-        <div className="space-y-3">
-          {sortedTriggers.length > 0 ? (
-            sortedTriggers.map(([trigger, count]) => (
-              <div key={trigger} className="flex items-center justify-between">
-                <span className="text-text text-sm">{trigger}</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-24 h-1.5 bg-gray-700 rounded-full overflow-hidden">
-                    <div className="h-full bg-primary" style={{ width: `${(count / logs.length) * 100}%` }} />
-                  </div>
-                  <span className="text-xs text-muted w-4 text-right">{count}</span>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="text-center text-muted text-sm py-4">Nessun fattore registrato</div>
-          )}
-        </div>
-      </div>
-
-      {/* --- FULL SCREEN MODAL --- */}
-      {isFullScreen && (
-        <div 
-          className="fixed inset-0 z-[100] bg-background flex flex-col pt-safe pl-safe pr-safe pb-safe"
-          style={{ overscrollBehavior: 'none' }}
-        >
-          {/* Header Controls - Compact single row for landscape optimization */}
-          <div className="flex-none pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 px-4 border-b border-gray-800 flex items-center gap-4 bg-background z-20">
-             <div className="flex-1 flex gap-2 items-center">
-                <div className="flex-1">
-                    <label className="text-[10px] uppercase text-muted font-bold block mb-1">Dal</label>
-                    <input 
-                    type="date" 
-                    value={dateRange.start}
-                    onChange={e => setDateRange({...dateRange, start: e.target.value})}
-                    className="w-full bg-surface border border-gray-600 rounded-lg p-2 text-sm text-white focus:ring-1 focus:ring-primary outline-none"
-                    />
-                </div>
-                <div className="flex-1">
-                    <label className="text-[10px] uppercase text-muted font-bold block mb-1">Al</label>
-                    <input 
-                    type="date" 
-                    value={dateRange.end}
-                    onChange={e => setDateRange({...dateRange, end: e.target.value})}
-                    className="w-full bg-surface border border-gray-600 rounded-lg p-2 text-sm text-white focus:ring-1 focus:ring-primary outline-none"
-                    />
-                </div>
-             </div>
-
-            <button 
-              onClick={() => setIsFullScreen(false)}
-              className="p-3 bg-surface hover:bg-gray-700 rounded-full text-white transition-colors flex-none"
-            >
-                <X size={20} />
-            </button>
-          </div>
-
-          {/* Chart Content Container - Fill Remaining Space */}
-          <div className="flex-1 min-h-0 relative p-4 bg-background w-full">
-              {fullTrendData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={fullTrendData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                      <XAxis dataKey="date" stroke="#64748b" tick={{fontSize: 12}} tickLine={false} axisLine={false} interval="preserveStartEnd" />
-                      <YAxis stroke="#64748b" tick={{fontSize: 12}} tickLine={false} axisLine={false} domain={[0, 10]} />
-                      <Tooltip 
-                          contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#f1f5f9', fontSize: '14px' }}
-                          itemStyle={{ color: '#f43f5e' }}
-                          labelFormatter={(label, payload) => payload[0]?.payload.fullDate || label}
-                      />
-                      <Line 
-                          type="monotone" 
-                          dataKey="intensity" 
-                          stroke="#f43f5e" 
-                          strokeWidth={3} 
-                          dot={{r: 4, fill:'#f43f5e'}} 
-                          activeDot={{r: 8}} 
-                      />
-                      </LineChart>
-                  </ResponsiveContainer>
-              ) : (
-                  <div className="flex items-center justify-center h-full text-muted">
-                      Nessun dato nel periodo selezionato
-                  </div>
-              )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
+             <div className="h-full flex items-center justify-center text-muted text-xs">

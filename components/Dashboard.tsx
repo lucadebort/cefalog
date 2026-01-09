@@ -66,7 +66,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onLogNew, onViewHistory })
       {/* Sticky Header */}
       <header className="sticky top-0 z-30 bg-background/90 backdrop-blur-md pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 -mx-4 px-4 mb-4 flex justify-between items-center border-b border-gray-800/50">
         <div>
-          <h1 className="text-2xl font-bold text-text">Ciao, Fratello</h1>
+          <h1 className="text-2xl font-bold text-text">Il tuo Diario</h1>
           <p className="text-muted text-sm">Spero tu stia bene oggi.</p>
         </div>
         <button 

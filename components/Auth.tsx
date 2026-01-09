@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../services/supabaseClient';
 import { Button } from './ui/Button';
-import { Mail, Lock, Loader2 } from 'lucide-react';
+import { Mail, Lock, Loader2, CheckCircle2 } from 'lucide-react';
 
 export const Auth: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -9,13 +9,12 @@ export const Auth: React.FC = () => {
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setMessage(null);
 
     try {
       if (mode === 'signup') {
@@ -24,7 +23,7 @@ export const Auth: React.FC = () => {
           password,
         });
         if (error) throw error;
-        setMessage('Controlla la tua email per il link di conferma!');
+        setSuccess(true);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -38,6 +37,36 @@ export const Auth: React.FC = () => {
       setLoading(false);
     }
   };
+
+  const handleOpenEmail = () => {
+    window.location.href = 'mailto:';
+  };
+
+  if (success) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-background pt-[calc(env(safe-area-inset-top)+1rem)] pb-safe">
+        <div className="w-full max-w-md bg-surface p-8 rounded-2xl border border-gray-800 shadow-2xl text-center animate-fade-in">
+          <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-500/30">
+            <Mail className="w-10 h-10 text-green-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-3">Controlla la tua posta</h2>
+          <p className="text-muted mb-8 leading-relaxed">
+            Ti abbiamo inviato un'email di conferma a <strong className="text-white block mt-1">{email}</strong>
+            <span className="block mt-2 text-sm">Clicca sul link contenuto nel messaggio per attivare il tuo account e iniziare a usare il diario.</span>
+          </p>
+          
+          <div className="space-y-3">
+            <Button fullWidth size="lg" onClick={handleOpenEmail}>
+              Apri App Email
+            </Button>
+            <Button variant="ghost" fullWidth onClick={() => setSuccess(false)}>
+              Torna al Login
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background pt-[calc(env(safe-area-inset-top)+1rem)] pb-safe">
@@ -80,6 +109,30 @@ export const Auth: React.FC = () => {
           <p className="text-muted text-sm">Diario per il monitoraggio delle cefalee, creato appositamente per te da.. Luca!</p>
         </div>
 
+        {/* Auth Mode Toggle */}
+        <div className="flex p-1 bg-gray-900/50 rounded-xl mb-6 border border-gray-800">
+          <button
+            onClick={() => { setMode('signin'); setError(null); }}
+            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
+              mode === 'signin' 
+                ? 'bg-surface text-white shadow-sm border border-gray-700' 
+                : 'text-muted hover:text-gray-300'
+            }`}
+          >
+            Accedi
+          </button>
+          <button
+            onClick={() => { setMode('signup'); setError(null); }}
+            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
+              mode === 'signup' 
+                ? 'bg-surface text-white shadow-sm border border-gray-700' 
+                : 'text-muted hover:text-gray-300'
+            }`}
+          >
+            Registrati
+          </button>
+        </div>
+
         <form onSubmit={handleAuth} className="space-y-4">
           <div>
             <label className="block text-xs uppercase text-muted font-bold mb-1">Email</label>
@@ -113,30 +166,15 @@ export const Auth: React.FC = () => {
           </div>
 
           {error && (
-            <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-3 rounded-lg text-sm text-center">
-              {error}
-            </div>
-          )}
-          
-          {message && (
-            <div className="bg-green-500/10 border border-green-500/50 text-green-400 p-3 rounded-lg text-sm text-center">
-              {message}
+            <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-3 rounded-lg text-sm text-center flex items-center justify-center gap-2">
+              <CheckCircle2 className="w-4 h-4" /> {error}
             </div>
           )}
 
           <Button fullWidth size="lg" disabled={loading} className="mt-4">
-            {loading ? <Loader2 className="animate-spin w-5 h-5" /> : (mode === 'signin' ? 'Accedi' : 'Registrati')}
+            {loading ? <Loader2 className="animate-spin w-5 h-5" /> : (mode === 'signin' ? 'Accedi al Diario' : 'Crea Account')}
           </Button>
         </form>
-
-        <div className="mt-6 text-center">
-          <button 
-            onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(null); setMessage(null); }}
-            className="text-sm text-primary hover:underline"
-          >
-            {mode === 'signin' ? "Non hai un account? Registrati" : "Hai già un account? Accedi"}
-          </button>
-        </div>
       </div>
     </div>
   );
