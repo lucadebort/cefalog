@@ -36,7 +36,7 @@ export const LogDetail: React.FC<LogDetailProps> = ({ log, onBack, onEdit, onDel
   ].filter(Boolean) as string[];
 
   const handleDelete = () => {
-    if (confirm('Sei sicuro di voler eliminare definitivamente questo diario?')) {
+    if (confirm('Sei sicuro di voler eliminare definitivamente questo attacco?')) {
       onDelete(log.id);
     }
   };
@@ -196,7 +196,7 @@ export const LogDetail: React.FC<LogDetailProps> = ({ log, onBack, onEdit, onDel
                 className="text-red-500 hover:bg-red-500/10 hover:text-red-400"
             >
                 <Trash2 size={18} className="mr-2" />
-                Elimina Diario
+                Elimina Attacco
             </Button>
         </div>
       </div>

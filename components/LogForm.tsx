@@ -186,7 +186,7 @@ export const LogForm: React.FC<LogFormProps> = ({ onClose, editTarget }) => {
           <ArrowLeft />
         </button>
         <h2 className="font-bold text-lg">
-           <span className="mt-1 block">{isEditingExisting ? 'Modifica Diario' : 'Nuovo Diario'}</span>
+           <span className="mt-1 block">{isEditingExisting ? 'Modifica Attacco' : 'Registra Nuovo Attacco'}</span>
         </h2>
         <div className="w-8" />
       </div>
