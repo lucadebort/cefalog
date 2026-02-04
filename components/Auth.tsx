@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { supabase } from '../services/supabaseClient';
 import { Button } from './ui/Button';
-import { Mail, Lock, Loader2, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, Loader2, AlertCircle } from 'lucide-react';
+import { PrivacyPolicy } from './PrivacyPolicy';
 
 export const Auth: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -10,14 +11,30 @@ export const Auth: React.FC = () => {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [privacyConsent, setPrivacyConsent] = useState(false);
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
+    // Validazione password
+    if (password.length < 8) {
+      setError('La password deve contenere almeno 8 caratteri');
+      setLoading(false);
+      return;
+    }
+
     try {
       if (mode === 'signup') {
+        // Verifica consenso privacy
+        if (!privacyConsent) {
+          setError('Devi accettare la Privacy Policy per registrarti');
+          setLoading(false);
+          return;
+        }
+
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -136,14 +153,39 @@ export const Auth: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-background border border-gray-700 rounded-xl py-3 pl-10 pr-4 text-white focus:ring-2 focus:ring-primary outline-none"
                 placeholder="••••••••"
-                minLength={6}
+                minLength={8}
               />
             </div>
+            <p className="text-xs text-muted mt-1">Minimo 8 caratteri</p>
           </div>
+
+          {/* Privacy consent checkbox - solo per signup */}
+          {mode === 'signup' && (
+            <div className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                id="privacy-consent"
+                checked={privacyConsent}
+                onChange={(e) => setPrivacyConsent(e.target.checked)}
+                className="mt-1 w-4 h-4 rounded border-gray-600 bg-background text-primary focus:ring-primary focus:ring-offset-0"
+              />
+              <label htmlFor="privacy-consent" className="text-sm text-muted">
+                Ho letto e accetto la{' '}
+                <button
+                  type="button"
+                  onClick={() => setShowPrivacyPolicy(true)}
+                  className="text-primary hover:text-indigo-400 underline"
+                >
+                  Privacy Policy
+                </button>
+                {' '}e acconsento al trattamento dei miei dati sanitari.
+              </label>
+            </div>
+          )}
 
           {error && (
             <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-3 rounded-lg text-sm text-center flex items-center justify-center gap-2">
-              <CheckCircle2 className="w-4 h-4" /> {error}
+              <AlertCircle className="w-4 h-4" /> {error}
             </div>
           )}
 
@@ -157,7 +199,7 @@ export const Auth: React.FC = () => {
             <p className="text-muted text-sm">
                 {mode === 'signin' ? "Non hai ancora un account?" : "Hai già un account?"}
                 <button
-                    onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(null); }}
+                    onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(null); setPrivacyConsent(false); }}
                     className="ml-2 text-primary font-bold hover:text-indigo-400 transition-colors focus:outline-none"
                 >
                     {mode === 'signin' ? "Registrati" : "Accedi"}
@@ -165,6 +207,11 @@ export const Auth: React.FC = () => {
             </p>
         </div>
       </div>
+
+      {/* Privacy Policy Modal */}
+      {showPrivacyPolicy && (
+        <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />
+      )}
     </div>
   );
 };

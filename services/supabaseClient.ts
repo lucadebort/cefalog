@@ -1,8 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Configuration for CefaLog Supabase Project
-// Credenziali inserite per il progetto
-const SUPABASE_URL = 'https://mgtgicwswjcykhjvnsse.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_pf4QpGjbaZR31Lb9xzE9Qw_w_tMIES9';
+// Credenziali caricate da variabili d'ambiente
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  throw new Error(
+    'Mancano le variabili d\'ambiente Supabase. ' +
+    'Crea un file .env.local con VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY'
+  );
+}
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
