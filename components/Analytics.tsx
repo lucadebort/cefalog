@@ -2,17 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import { HeadacheLog, LOCATION_COLORS } from '../types';
 import { getLogs } from '../services/storageService';
-import { Clock, Zap, Pill, Calendar, Maximize2, X, MapPin, Loader2, Download, Printer } from 'lucide-react';
+import { Clock, Zap, Calendar, Maximize2, X, MapPin, Loader2, Download, Printer } from 'lucide-react';
 
 export const Analytics: React.FC = () => {
   const [logs, setLogs] = useState<HeadacheLog[]>([]);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [loading, setLoading] = useState(true);
-  
+
   // Custom Date Range State
   const [dateRange, setDateRange] = useState({
-    start: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().slice(0, 10), // Default 30 days ago
-    end: new Date().toISOString().slice(0, 10) // Today
+    start: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().slice(0, 10),
+    end: new Date().toISOString().slice(0, 10)
   });
 
   useEffect(() => {
@@ -22,14 +22,14 @@ export const Analytics: React.FC = () => {
     });
   }, []);
 
-  // SCROLL LOCKING: Force body to fixed to prevent iOS rubber-banding under modal
+  // SCROLL LOCKING for fullscreen modal
   useEffect(() => {
     if (isFullScreen) {
       const scrollY = window.scrollY;
       document.body.style.position = 'fixed';
       document.body.style.top = `-${scrollY}px`;
       document.body.style.width = '100%';
-      document.body.style.touchAction = 'none'; // Nuclear option for scroll
+      document.body.style.touchAction = 'none';
     } else {
       const scrollY = document.body.style.top;
       document.body.style.position = '';
@@ -50,7 +50,7 @@ export const Analytics: React.FC = () => {
 
   const getFilteredLogs = () => {
     const start = new Date(dateRange.start).getTime();
-    const end = new Date(dateRange.end).getTime() + (1000 * 60 * 60 * 24); // Include end day
+    const end = new Date(dateRange.end).getTime() + (1000 * 60 * 60 * 24);
     return logs.filter(l => {
       const t = new Date(l.startedAt).getTime();
       return t >= start && t < end;
@@ -58,12 +58,10 @@ export const Analytics: React.FC = () => {
   };
 
   const processTrendData = (sourceLogs: HeadacheLog[]) => {
-    // Generate array of dates between start and end
     const dates = [];
     const curr = new Date(dateRange.start);
     const last = new Date(dateRange.end);
-    
-    // Safety break for loop
+
     let safety = 0;
     while(curr <= last && safety < 365) {
         dates.push(new Date(curr));
@@ -74,7 +72,7 @@ export const Analytics: React.FC = () => {
     return dates.map(date => {
       const dayStr = date.toISOString().slice(0, 10);
       const dayLogs = sourceLogs.filter(l => l.startedAt.startsWith(dayStr));
-      
+
       let intensity = 0;
       if (dayLogs.length > 0) {
         intensity = dayLogs.reduce((acc, l) => acc + l.intensity, 0) / dayLogs.length;
@@ -93,11 +91,10 @@ export const Analytics: React.FC = () => {
   }
 
   // --- DERIVED DATA ---
-  
-  // 1. Trend Data (Default 30 days for small view, custom for fullscreen)
+
   const analysisLogs = isFullScreen ? getFilteredLogs() : logs;
-  
-  // Re-calc trend for small view specifically (Last 30 days fixed)
+
+  // Last 30 days trend
   const last30Days = Array.from({ length: 30 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (29 - i));
@@ -111,10 +108,9 @@ export const Analytics: React.FC = () => {
      return { date: date.getDate().toString(), fullDate: date.toLocaleDateString('it-IT'), intensity: parseFloat(intensity.toFixed(1)) };
   });
 
-  // Full Screen Trend Data
   const fullTrendData = processTrendData(logs);
 
-  // 2. Localization Analysis
+  // Localization Analysis
   const locCounts: Record<string, number> = {};
   analysisLogs.forEach(log => {
     log.locations.forEach(loc => {
@@ -125,7 +121,7 @@ export const Analytics: React.FC = () => {
     .sort((a, b) => b[1] - a[1])
     .map(([name, value]) => ({ name, value, color: LOCATION_COLORS[name as any] || '#94a3b8' }));
 
-  // 3. Time Distribution
+  // Time Distribution
   const timeDistribution = [
     { name: 'Mattina', value: 0 },
     { name: 'Pomeriggio', value: 0 },
@@ -141,7 +137,7 @@ export const Analytics: React.FC = () => {
   });
   const activeTimeDist = timeDistribution.filter(d => d.value > 0);
 
-  // 4. Triggers
+  // Triggers
   const triggerCounts: Record<string, number> = {};
   analysisLogs.forEach(log => {
     log.triggers.forEach(t => {
@@ -156,24 +152,12 @@ export const Analytics: React.FC = () => {
 
   const downloadCSV = () => {
     const headers = [
-      'Inizio',
-      'Fine',
-      'Intensità (1-10)',
-      'Qualità Dolore',
-      'Zone',
-      'Aura',
-      'Nausea',
-      'Fotofobia',
-      'Fonofobia',
-      'Trigger',
-      'Farmaci',
-      'Cibo',
-      'Note'
+      'Inizio', 'Fine', 'Intensità (1-10)', 'Qualità Dolore', 'Zone',
+      'Aura', 'Nausea', 'Fotofobia', 'Fonofobia', 'Trigger', 'Farmaci', 'Cibo', 'Note'
     ];
 
     const escapeCsv = (str: string | undefined) => {
       if (!str) return '';
-      // Escape quotes and wrap in quotes
       return `"${str.replace(/"/g, '""')}"`;
     };
 
@@ -195,7 +179,7 @@ export const Analytics: React.FC = () => {
       ].join(',');
     });
 
-    const csvContent = "\uFEFF" + [headers.join(','), ...rows].join('\n'); // \uFEFF for BOM (Excel compatibility)
+    const csvContent = "\uFEFF" + [headers.join(','), ...rows].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -207,20 +191,20 @@ export const Analytics: React.FC = () => {
   };
 
   return (
-    <div className="pb-24 animate-fade-in space-y-6 px-4">
+    <div className="pb-24 lg:pb-8 animate-fade-in space-y-6 px-4 lg:px-0">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-md pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 -mx-4 px-4 mb-4 flex justify-between items-center border-b border-gray-800/50">
-        <h2 className="text-2xl font-bold">Analisi</h2>
+      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-md pt-[calc(env(safe-area-inset-top)+1rem)] lg:pt-8 pb-4 -mx-4 px-4 lg:mx-0 lg:px-0 mb-4 flex justify-between items-center border-b border-gray-800/50 lg:border-0">
+        <h2 className="text-2xl lg:text-3xl font-bold">Analisi</h2>
         <div className="flex gap-2">
-            <button 
-                onClick={printReport} 
+            <button
+                onClick={printReport}
                 className="p-2 text-muted hover:text-white border border-gray-700 rounded-lg transition-colors"
                 title="Stampa PDF"
             >
                 <Printer size={18} />
             </button>
-            <button 
-                onClick={downloadCSV} 
+            <button
+                onClick={downloadCSV}
                 className="flex items-center gap-2 text-xs bg-surface hover:bg-gray-700 text-primary font-medium border border-primary/30 px-3 py-2 rounded-lg transition-colors"
             >
                 <Download size={14} />
@@ -229,28 +213,31 @@ export const Analytics: React.FC = () => {
         </div>
       </div>
 
-      {/* --- INTENSITY TREND (SMALL) --- */}
-      <div className="bg-surface p-4 rounded-xl border border-gray-700 relative">
+      {/* Main Trend Chart - Full Width */}
+      <div className="bg-surface p-4 lg:p-6 rounded-xl border border-gray-700 relative">
         <div className="flex justify-between items-center mb-4">
             <h3 className="text-sm font-medium text-muted uppercase tracking-wider flex items-center gap-2">
             <Calendar size={16}/> Andamento 30 Giorni
             </h3>
-            <button 
+            <button
                 onClick={() => setIsFullScreen(true)}
                 className="p-1.5 bg-gray-700 hover:bg-primary text-white rounded-lg transition-colors"
             >
                 <Maximize2 size={16} />
             </button>
         </div>
-        <div className="h-40 w-full">
+        <div className="h-40 lg:h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={smallTrendData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" className="hidden lg:block" />
               <XAxis dataKey="date" stroke="#64748b" tick={{fontSize: 10}} tickLine={false} axisLine={false} interval={4} />
-              <YAxis hide domain={[0, 10]} />
-              <Tooltip 
-                contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#f1f5f9' }}
+              <YAxis hide domain={[0, 10]} className="lg:block" />
+              <Tooltip
+                contentStyle={{ backgroundColor: '#1e293b', borderColor: '#475569', borderRadius: '8px' }}
+                labelStyle={{ color: '#f1f5f9', fontWeight: 500, marginBottom: '4px' }}
                 itemStyle={{ color: '#f43f5e' }}
                 labelFormatter={(label, payload) => payload[0]?.payload.fullDate || label}
+                formatter={(value: number) => [`Intensità: ${value}`, '']}
               />
               <Line type="monotone" dataKey="intensity" stroke="#f43f5e" strokeWidth={2} dot={false} />
             </LineChart>
@@ -258,123 +245,137 @@ export const Analytics: React.FC = () => {
         </div>
       </div>
 
-      {/* --- LOCALIZATION CHART --- */}
-      <div className="bg-surface p-4 rounded-xl border border-gray-700">
-        <h3 className="text-sm font-medium text-muted mb-4 uppercase tracking-wider flex items-center gap-2">
-           <MapPin size={16}/> Zone Colpite
-        </h3>
-        <div className="h-48 w-full">
-          {locData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart layout="vertical" data={locData} margin={{ left: 0, right: 30, top: 0, bottom: 0 }}>
-                    <XAxis type="number" hide />
-                    <YAxis dataKey="name" type="category" width={90} tick={{fontSize: 11, fill: '#94a3b8'}} tickLine={false} axisLine={false} />
-                    <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155' }} />
-                    <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>
-                        {locData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                    </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-          ) : (
-             <div className="h-full flex items-center justify-center text-muted text-xs">
-                Nessun dato sulla posizione.
-             </div>
-          )}
-        </div>
-      </div>
-
-      {/* --- TIME DISTRIBUTION --- */}
-      <div className="bg-surface p-4 rounded-xl border border-gray-700">
-        <h3 className="text-sm font-medium text-muted mb-4 uppercase tracking-wider flex items-center gap-2">
-            <Clock size={16}/> Orari Più Frequenti
-        </h3>
-        <div className="h-48 w-full flex items-center justify-center">
-             {activeTimeDist.length > 0 ? (
+      {/* Desktop: 2 column grid for smaller charts */}
+      <div className="lg:grid lg:grid-cols-2 lg:gap-6 space-y-6 lg:space-y-0">
+        {/* Localization Chart */}
+        <div className="bg-surface p-4 lg:p-6 rounded-xl border border-gray-700">
+          <h3 className="text-sm font-medium text-muted mb-4 uppercase tracking-wider flex items-center gap-2">
+             <MapPin size={16}/> Zone Colpite
+          </h3>
+          <div className="h-48 lg:h-56 w-full">
+            {locData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                        <Pie
-                            data={activeTimeDist}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={40}
-                            outerRadius={70}
-                            paddingAngle={5}
-                            dataKey="value"
-                        >
-                            {activeTimeDist.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={['#6366f1', '#f43f5e', '#a855f7', '#06b6d4'][index % 4]} />
-                            ))}
-                        </Pie>
-                        <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155' }} />
-                    </PieChart>
+                  <BarChart layout="vertical" data={locData} margin={{ left: 0, right: 30, top: 0, bottom: 0 }}>
+                      <XAxis type="number" hide />
+                      <YAxis dataKey="name" type="category" width={90} tick={{fontSize: 11, fill: '#94a3b8'}} tickLine={false} axisLine={false} />
+                      <Tooltip
+                                        cursor={{fill: 'transparent'}}
+                                        contentStyle={{ backgroundColor: '#1e293b', borderColor: '#475569', borderRadius: '8px' }}
+                                        labelStyle={{ color: '#f1f5f9', fontWeight: 500 }}
+                                        itemStyle={{ color: '#94a3b8' }}
+                                        formatter={(value: number, name: string) => [`${value} episodi`, name]}
+                                      />
+                      <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>
+                          {locData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                      </Bar>
+                  </BarChart>
                 </ResponsiveContainer>
-             ) : (
-                <div className="text-muted text-xs">Dati insufficienti.</div>
-             )}
+            ) : (
+               <div className="h-full flex items-center justify-center text-muted text-xs">
+                  Nessun dato sulla posizione.
+               </div>
+            )}
+          </div>
         </div>
-        <div className="flex justify-center gap-4 mt-2">
-            {activeTimeDist.map((entry, index) => (
-                <div key={entry.name} className="flex items-center gap-1 text-[10px] text-gray-400">
-                    <div className="w-2 h-2 rounded-full" style={{backgroundColor: ['#6366f1', '#f43f5e', '#a855f7', '#06b6d4'][index % 4]}} />
-                    {entry.name}
-                </div>
-            ))}
+
+        {/* Time Distribution */}
+        <div className="bg-surface p-4 lg:p-6 rounded-xl border border-gray-700">
+          <h3 className="text-sm font-medium text-muted mb-4 uppercase tracking-wider flex items-center gap-2">
+              <Clock size={16}/> Orari Più Frequenti
+          </h3>
+          <div className="h-48 lg:h-56 w-full flex items-center justify-center">
+               {activeTimeDist.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                          <Pie
+                              data={activeTimeDist}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={40}
+                              outerRadius={70}
+                              paddingAngle={5}
+                              dataKey="value"
+                          >
+                              {activeTimeDist.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={['#6366f1', '#f43f5e', '#a855f7', '#06b6d4'][index % 4]} />
+                              ))}
+                          </Pie>
+                          <Tooltip
+                                              contentStyle={{ backgroundColor: '#1e293b', borderColor: '#475569', borderRadius: '8px' }}
+                                              labelStyle={{ color: '#f1f5f9', fontWeight: 500 }}
+                                              itemStyle={{ color: '#94a3b8' }}
+                                              formatter={(value: number, name: string) => [`${value} episodi`, name]}
+                                          />
+                      </PieChart>
+                  </ResponsiveContainer>
+               ) : (
+                  <div className="text-muted text-xs">Dati insufficienti.</div>
+               )}
+          </div>
+          <div className="flex justify-center gap-4 mt-2">
+              {activeTimeDist.map((entry, index) => (
+                  <div key={entry.name} className="flex items-center gap-1 text-[10px] text-gray-400">
+                      <div className="w-2 h-2 rounded-full" style={{backgroundColor: ['#6366f1', '#f43f5e', '#a855f7', '#06b6d4'][index % 4]}} />
+                      {entry.name}
+                  </div>
+              ))}
+          </div>
         </div>
       </div>
 
-      {/* --- TOP TRIGGERS --- */}
-      <div className="bg-surface p-4 rounded-xl border border-gray-700">
+      {/* Top Triggers - Full Width */}
+      <div className="bg-surface p-4 lg:p-6 rounded-xl border border-gray-700">
         <h3 className="text-sm font-medium text-muted mb-4 uppercase tracking-wider flex items-center gap-2">
             <Zap size={16}/> Fattori Scatenanti Comuni
         </h3>
-        <div className="space-y-3">
+        <div className="space-y-3 lg:grid lg:grid-cols-2 lg:gap-x-8 lg:gap-y-3 lg:space-y-0">
             {sortedTriggers.length > 0 ? (
                 sortedTriggers.map(([name, count], i) => (
                     <div key={name} className="flex items-center justify-between">
                         <span className="text-sm text-gray-300">{i+1}. {name}</span>
                         <div className="flex items-center gap-2">
-                            <div className="w-24 h-2 bg-gray-800 rounded-full overflow-hidden">
-                                <div 
-                                    className="h-full bg-accent rounded-full" 
-                                    style={{ width: `${(count / logs.length) * 100}%` }} 
+                            <div className="w-24 lg:w-32 h-2 bg-gray-800 rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-accent rounded-full"
+                                    style={{ width: `${(count / logs.length) * 100}%` }}
                                 />
                             </div>
-                            <span className="text-xs text-muted w-4">{count}</span>
+                            <span className="text-xs text-muted w-6 text-right">{count}</span>
                         </div>
                     </div>
                 ))
             ) : (
-                <div className="text-center py-4 text-muted text-xs">Nessun trigger registrato.</div>
+                <div className="text-center py-4 text-muted text-xs lg:col-span-2">Nessun trigger registrato.</div>
             )}
         </div>
       </div>
 
-      {/* --- FULL SCREEN MODAL --- */}
+      {/* Full Screen Modal */}
       {isFullScreen && (
         <div className="fixed inset-0 z-[60] bg-background flex flex-col animate-in fade-in slide-in-from-bottom-4">
-            <div className="flex justify-between items-center p-4 border-b border-gray-800 bg-surface">
-                <h2 className="font-bold text-lg">Analisi Dettagliata</h2>
+            <div className="flex justify-between items-center p-4 lg:p-6 border-b border-gray-800 bg-surface">
+                <h2 className="font-bold text-lg lg:text-xl">Analisi Dettagliata</h2>
                 <button onClick={() => setIsFullScreen(false)} className="p-2 bg-gray-700 rounded-full hover:bg-gray-600">
                     <X size={20} />
                 </button>
             </div>
-            
-            <div className="p-4 border-b border-gray-800 flex gap-4 overflow-x-auto">
-                 <div className="flex-1 min-w-[120px]">
+
+            <div className="p-4 lg:p-6 border-b border-gray-800 flex gap-4 overflow-x-auto">
+                 <div className="flex-1 min-w-[120px] lg:max-w-xs">
                     <label className="text-xs text-muted block mb-1">Da</label>
-                    <input 
-                        type="date" 
+                    <input
+                        type="date"
                         value={dateRange.start}
                         onChange={(e) => setDateRange({...dateRange, start: e.target.value})}
                         className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm"
                     />
                  </div>
-                 <div className="flex-1 min-w-[120px]">
+                 <div className="flex-1 min-w-[120px] lg:max-w-xs">
                     <label className="text-xs text-muted block mb-1">A</label>
-                    <input 
-                        type="date" 
+                    <input
+                        type="date"
                         value={dateRange.end}
                         onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
                         className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm"
@@ -382,15 +383,18 @@ export const Analytics: React.FC = () => {
                  </div>
             </div>
 
-            <div className="flex-1 p-4 overflow-y-auto">
-                 <div className="h-[400px] w-full min-w-[600px]">
+            <div className="flex-1 p-4 lg:p-8 overflow-y-auto">
+                 <div className="h-[400px] lg:h-[500px] w-full min-w-[600px]">
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={fullTrendData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                         <XAxis dataKey="fullDate" stroke="#64748b" tick={{fontSize: 10}} />
                         <YAxis domain={[0, 10]} stroke="#64748b" />
-                        <Tooltip 
-                            contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155' }}
+                        <Tooltip
+                            contentStyle={{ backgroundColor: '#1e293b', borderColor: '#475569', borderRadius: '8px' }}
+                            labelStyle={{ color: '#f1f5f9', fontWeight: 500, marginBottom: '4px' }}
+                            itemStyle={{ color: '#f43f5e' }}
+                            formatter={(value: number) => [`Intensità: ${value}`, '']}
                         />
                         <Line type="monotone" dataKey="intensity" stroke="#f43f5e" strokeWidth={3} dot={{r: 4}} />
                         </LineChart>
