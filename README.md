@@ -19,54 +19,11 @@ CefaLog risolve questo problema trasformando il tracciamento in un gesto rapido 
 
 ---
 
-## Features
-- Registrazione dettagliata degli episodi di cefalea
-- Tracciamento intensità, localizzazione, sintomi e trigger
-- Dashboard con statistiche e grafici
-- Esportazione dati in CSV
-- PWA installabile su iOS e Android
-- Modalità offline con sincronizzazione
+## Registrazione dettagliata degli episodi di cefalea
+Registra ogni attacco indicandone la durata e tutti i dettagli che possono essere utili a te (e al tuo medico) per comprendere meglio il tuo quadro. <br/>
+<img width="160" height="330" alt="PHONE" src="https://github.com/user-attachments/assets/c5439186-3f31-4e42-9544-a017fcb97a0f" />
 
-<table>
-  <tr>
-    <td align="center" width="33%">
-      <img src="screenshots/intensita.png" width="220"/><br/>
-      <strong>Intensità Dolore</strong><br/>
-      <sub>Slider visuale 1-10 con feedback immediato</sub>
-    </td>
-    <td align="center" width="33%">
-      <img src="screenshots/mappa.png" width="220"/><br/>
-      <strong>Mappa Interattiva</strong><br/>
-      <sub>Tocca dove fa male: fronte, tempie, nuca, occhi</sub>
-    </td>
-    <td align="center" width="33%">
-      <img src="screenshots/analytics.png" width="220"/><br/>
-      <strong>Analytics</strong><br/>
-      <sub>Zone colpite, trend 30gg, orari frequenti</sub>
-    </td>
-  </tr>
-</table>
-
-<table>
-  <tr>
-    <td align="center" width="50%">
-      <img src="screenshots/home.png" width="220"/><br/>
-      <strong>Dashboard</strong><br/>
-      <sub>Dolore medio, giorni liberi, storico recente</sub>
-    </td>
-    <td align="center" width="50%">
-      <img width="160" height="330" alt="Storico 2" src="https://github.com/user-attachments/assets/5dbc2ef1-ea00-4072-b43b-b08e257f188d" /><br/>
-      <p>
-         <strong>Storico</strong>
-      </p>
-      <sub>Calendario + lista con filtri e dettagli</sub>
-    </td>
-  </tr>
-</table>
-
----
-
-## Cosa puoi tracciare
+#### Cosa puoi tracciare
 
 | Categoria | Dettagli |
 |-----------|----------|
@@ -75,6 +32,28 @@ CefaLog risolve questo problema trasformando il tracciamento in un gesto rapido 
 | **Trigger** | Meteo, sonno, alcol, caffeina, stress, ciclo, altro |
 | **Sintomi** | Aura, fotofobia, nausea, vertigini |
 | **Farmaci** | Nome, dosaggio, efficacia |
+
+---
+
+## Analytics
+Ottieni più controllo e comprendi come il tuo corpo reagisce al dolore: le Analytics ti permettono di rintracciare pattern e cause comuni. <br/>
+<img width="160" height="330" alt="Analisi" src="https://github.com/user-attachments/assets/bfd4e115-e730-443e-8314-71b98c6583da" />
+
+- Vedi l'andamento del dolore e l'intensità nel tempo
+- Controlla le zone più colpite
+- Scopri i fattori scatenanti più comuni
+
+#### ...e in più: parlene con il medico!
+Puoi scaricare i file in formato .csv, oppure stampare il report in formato PDF, per inviarlo al tuo neurologo di fiducia.
+
+---
+## Storico sempre con te
+Tutte le registrazioni sono salvate nello storico:<br/>
+
+<img width="160" height="330" alt="Storico 2" src="https://github.com/user-attachments/assets/5dbc2ef1-ea00-4072-b43b-b08e257f188d" /><br/>
+
+Scegli tra la vista a calendario o la vista elenco: ritroverai tutte le tue registrazioni.
+
 
 ---
 
